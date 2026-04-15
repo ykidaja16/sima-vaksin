@@ -1,0 +1,137 @@
+@extends('layouts.app')
+
+@section('title', 'Data Pasien - Sistem Reminder Vaksin')
+
+@section('content')
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Data Pasien</h1>
+            <p class="text-gray-600">Kelola data pasien dan jadwal vaksinasi</p>
+        </div>
+        <a href="{{ route('import.index') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition">
+            <i class="fas fa-file-import"></i>
+            <span>Import Excel</span>
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow p-4">
+        <form method="GET" action="{{ route('patients.index') }}" class="flex flex-col sm:flex-row gap-4">
+            <div class="flex-1">
+                <input type="text" name="search" value="{{ request('search') }}" 
+                    placeholder="Cari PID, nama, atau no HP..." 
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div class="sm:w-48">
+                <select name="jenis_vaksin" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">Semua Vaksin</option>
+                    <option value="HPV" {{ request('jenis_vaksin') == 'HPV' ? 'selected' : '' }}>HPV</option>
+                    <option value="Hepatitis" {{ request('jenis_vaksin') == 'Hepatitis' ? 'selected' : '' }}>Hepatitis</option>
+                    <option value="Influenza" {{ request('jenis_vaksin') == 'Influenza' ? 'selected' : '' }}>Influenza</option>
+                </select>
+            </div>
+            <div class="flex space-x-2">
+                <button type="submit" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition">
+                    <i class="fas fa-search"></i>
+                </button>
+                <a href="{{ route('patients.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg transition">
+                    <i class="fas fa-times"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">Total Pasien</p>
+                    <p class="text-2xl font-bold text-blue-600">{{ $patients->total() }}</p>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-full">
+                    <i class="fas fa-users text-blue-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Pasien</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No HP</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alamat</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Lahir</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Vaksin</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse($patients as $patient)
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {{ $patient->pid }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ $patient->nama_pasien }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $patient->no_hp ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title="{{ $patient->alamat }}">
+                                {{ $patient->alamat ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $patient->dob ? $patient->dob->format('d-m-Y') : '-' }}
+                                @if($patient->dob)
+                                    <span class="text-xs text-gray-400">({{ $patient->age }} th)</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                @foreach($patient->vaccines as $vaccine)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                        {{ $vaccine->jenis_vaksin === 'HPV' ? 'bg-pink-100 text-pink-800' : 
+                                           ($vaccine->jenis_vaksin === 'Hepatitis' ? 'bg-yellow-100 text-yellow-800' : 
+                                            'bg-green-100 text-green-800') }}">
+                                        {{ $vaccine->jenis_vaksin }}
+                                    </span>
+                                @endforeach
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="{{ route('patients.show', $patient->id) }}" class="text-blue-600 hover:text-blue-900 mr-3">
+                                    <i class="fas fa-eye"></i> Detail
+                                </a>
+                                <form action="{{ route('patients.destroy', $patient->id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash"></i> Hapus
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                Tidak ada data pasien ditemukan
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="bg-gray-50 border-t border-gray-200">
+            @include('components.pagination', ['paginator' => $patients])
+        </div>
+    </div>
+</div>
+@endsection
