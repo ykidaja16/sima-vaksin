@@ -14,53 +14,17 @@ class PatientController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Patient::with(['vaccines', 'vaccineSchedules']);
+        $query = $this->baseQuery();
 
-        // Search functionality
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('pid', 'like', "%{$search}%")
-                  ->orWhere('nama_pasien', 'like', "%{$search}%")
-                  ->orWhere('no_hp', 'like', "%{$search}%");
-            });
-        }
+        $query = $this->applyFilters($query, $request);
+        $query = $this->applySorting($query, $request);
 
-        // Filter by vaccine type
-        if ($request->filled('jenis_vaksin')) {
-            $query->whereHas('vaccines.vaccineType', function ($q) use ($request) {
-                $q->where('nama_vaksin', $request->input('jenis_vaksin'));
-            });
-        }
+        $patients = $query->paginate(30)->withQueryString();
 
-        // Sorting
+        $stats = $this->getStats();
+
         $sortField = $request->input('sort', 'pid');
         $sortDirection = $request->input('direction', 'asc');
-        
-        $allowedSortFields = ['pid', 'nama_pasien', 'no_hp', 'alamat', 'dob'];
-        
-        if (in_array($sortField, $allowedSortFields)) {
-            $query->orderBy($sortField, $sortDirection);
-        } else {
-            // Default sorting: PID ascending
-            $query->orderBy('pid', 'asc');
-        }
-
-        $patients = $query->paginate(30)
-            ->withQueryString();
-
-        // Stats for vaccine types
-        $stats = [
-            'total_hpv' => Patient::whereHas('vaccines.vaccineType', function ($q) {
-                $q->where('nama_vaksin', 'HPV');
-            })->count(),
-            'total_influenza' => Patient::whereHas('vaccines.vaccineType', function ($q) {
-                $q->where('nama_vaksin', 'Influenza');
-            })->count(),
-            'total_hepatitis' => Patient::whereHas('vaccines.vaccineType', function ($q) {
-                $q->where('nama_vaksin', 'Hepatitis');
-            })->count(),
-        ];
 
         return view('patients.index', compact('patients', 'stats', 'sortField', 'sortDirection'));
     }
@@ -68,7 +32,6 @@ class PatientController extends Controller
     public function show($id)
     {
         $patient = Patient::with(['vaccines.schedules'])->findOrFail($id);
-        
         return view('patients.show', compact('patient'));
     }
 
@@ -76,85 +39,52 @@ class PatientController extends Controller
     {
         try {
             DB::beginTransaction();
-            
+
             $patient = Patient::findOrFail($id);
             $patient->delete();
-            
+
             DB::commit();
-            Log::info("Patient {$id} deleted successfully");
 
             return redirect()->route('patients.index')
                 ->with('success', 'Data pasien berhasil dihapus');
+
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error("Failed to delete patient {$id}: " . $e->getMessage());
+
+            Log::error("Delete patient gagal: " . $e->getMessage());
 
             return redirect()->route('patients.index')
-                ->with('error', 'Gagal menghapus data pasien: ' . $e->getMessage());
+                ->with('error', 'Gagal menghapus data pasien');
         }
     }
 
     public function exportExcel(Request $request)
     {
-        $search = $request->input('search');
-        $jenisVaksin = $request->input('jenis_vaksin');
-        $sortField = $request->input('sort', 'pid');
-        $sortDirection = $request->input('direction', 'asc');
-
         $filename = 'data_pasien_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
-        
-        Log::info("Exporting patients to Excel", [
-            'search' => $search,
-            'jenis_vaksin' => $jenisVaksin,
-            'sort' => $sortField,
-            'direction' => $sortDirection,
-        ]);
 
         return Excel::download(
-            new PatientsExport($search, $jenisVaksin, $sortField, $sortDirection),
+            new PatientsExport(
+                $request->input('search'),
+                $request->input('jenis_vaksin'),
+                $request->input('sort', 'pid'),
+                $request->input('direction', 'asc')
+            ),
             $filename
         );
     }
 
     public function exportPDF(Request $request)
     {
-        $query = Patient::with(['vaccines.vaccineType']);
+        $query = $this->baseQuery();
 
-        // Search functionality
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('pid', 'like', "%{$search}%")
-                  ->orWhere('nama_pasien', 'like', "%{$search}%")
-                  ->orWhere('no_hp', 'like', "%{$search}%");
-            });
-        }
+        $query = $this->applyFilters($query, $request);
+        $query = $this->applySorting($query, $request);
 
-        // Filter by vaccine type
-        if ($request->filled('jenis_vaksin')) {
-            $query->whereHas('vaccines.vaccineType', function ($q) use ($request) {
-                $q->where('nama_vaksin', $request->input('jenis_vaksin'));
-            });
-        }
+        // Limit biar aman (hindari memory jebol)
+        $patients = $query->limit(1000)->get();
 
-        // Sorting
-        $sortField = $request->input('sort', 'pid');
-        $sortDirection = $request->input('direction', 'asc');
-        
-        $allowedSortFields = ['pid', 'nama_pasien', 'no_hp', 'alamat', 'dob'];
-        
-        if (in_array($sortField, $allowedSortFields)) {
-            $query->orderBy($sortField, $sortDirection);
-        } else {
-            $query->orderBy('pid', 'asc');
-        }
-
-        $patients = $query->get();
-
-        Log::info("Exporting patients to PDF", [
-            'count' => $patients->count(),
-            'search' => $request->input('search'),
-            'jenis_vaksin' => $request->input('jenis_vaksin'),
+        Log::info("Export PDF", [
+            'count' => $patients->count()
         ]);
 
         $pdf = Pdf::loadView('patients.pdf', [
@@ -166,8 +96,74 @@ class PatientController extends Controller
             'exported_at' => now()->format('d-m-Y H:i:s'),
         ]);
 
-        $filename = 'data_pasien_' . now()->format('Y-m-d_H-i-s') . '.pdf';
-        
-        return $pdf->download($filename);
+        return $pdf->download('data_pasien_' . now()->format('Y-m-d_H-i-s') . '.pdf');
+    }
+
+    /**
+     * 🔹 BASE QUERY (biar tidak duplikat)
+     */
+    private function baseQuery()
+    {
+        return Patient::with(['vaccines.vaccineType', 'vaccineSchedules']);
+    }
+
+    /**
+     * 🔹 FILTER
+     */
+    private function applyFilters($query, Request $request)
+    {
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+
+            $query->where(function ($q) use ($search) {
+                $q->where('pid', 'like', "%{$search}%")
+                  ->orWhere('nama_pasien', 'like', "%{$search}%")
+                  ->orWhere('no_hp', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('jenis_vaksin')) {
+            $query->whereHas('vaccines.vaccineType', function ($q) use ($request) {
+                $q->where('nama_vaksin', $request->input('jenis_vaksin'));
+            });
+        }
+
+        return $query;
+    }
+
+    /**
+     * 🔹 SORTING (AMAN)
+     */
+    private function applySorting($query, Request $request)
+    {
+        $sortField = $request->input('sort', 'pid');
+        $sortDirection = $request->input('direction', 'asc');
+
+        $allowed = ['pid', 'nama_pasien', 'no_hp', 'alamat', 'dob'];
+
+        if (!in_array($sortField, $allowed)) {
+            $sortField = 'pid';
+        }
+
+        return $query->orderBy($sortField, $sortDirection);
+    }
+
+    /**
+     * 🔹 STATS (OPTIMIZED - 1 QUERY)
+     */
+    private function getStats()
+    {
+        $raw = Patient::join('vaccines', 'patients.id', '=', 'vaccines.patient_id')
+            ->join('vaccine_types', 'vaccines.vaccine_type_id', '=', 'vaccine_types.id')
+            ->whereIn('vaccine_types.nama_vaksin', ['HPV', 'Influenza', 'Hepatitis'])
+            ->selectRaw('vaccine_types.nama_vaksin, COUNT(DISTINCT patients.id) as total')
+            ->groupBy('vaccine_types.nama_vaksin')
+            ->pluck('total', 'nama_vaksin');
+
+        return [
+            'total_hpv' => $raw['HPV'] ?? 0,
+            'total_influenza' => $raw['Influenza'] ?? 0,
+            'total_hepatitis' => $raw['Hepatitis'] ?? 0,
+        ];
     }
 }
