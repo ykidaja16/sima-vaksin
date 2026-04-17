@@ -27,6 +27,8 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:admin'])->group(function () {
         // Patient Routes
         Route::get('/patients', [PatientController::class, 'index'])->name('patients.index');
+        Route::get('/patients/export/excel', [PatientController::class, 'exportExcel'])->name('patients.export.excel');
+        Route::get('/patients/export/pdf', [PatientController::class, 'exportPDF'])->name('patients.export.pdf');
         Route::get('/patients/{id}', [PatientController::class, 'show'])->name('patients.show');
         Route::delete('/patients/{id}', [PatientController::class, 'destroy'])->name('patients.destroy');
 
@@ -37,6 +39,8 @@ Route::middleware(['auth'])->group(function () {
 
         // Reminder Routes
         Route::get('/reminders', [ReminderController::class, 'index'])->name('reminders.index');
+        Route::get('/reminders/export/excel', [ReminderController::class, 'exportExcel'])->name('reminders.export.excel');
+        Route::get('/reminders/export/pdf', [ReminderController::class, 'exportPDF'])->name('reminders.export.pdf');
         Route::post('/reminders/{id}/complete', [ReminderController::class, 'complete'])->name('reminders.complete');
         Route::post('/reminders/{id}/sent', [ReminderController::class, 'markReminderSent'])->name('reminders.sent');
     });

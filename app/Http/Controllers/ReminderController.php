@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\RemindersExport;
 use App\Models\VaccineSchedule;
 use App\Services\VaccineScheduleService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReminderController extends Controller
 {
@@ -112,5 +115,76 @@ class ReminderController extends Controller
                 'message' => 'Gagal menandai reminder'
             ], 500);
         }
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $status = $request->input('status', 'pending');
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+
+        $filename = 'reminder_h7_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+        
+        Log::info("Exporting reminders to Excel", [
+            'status' => $status,
+            'date_from' => $dateFrom,
+            'date_to' => $dateTo,
+        ]);
+
+        return Excel::download(
+            new RemindersExport($status, $dateFrom, $dateTo),
+            $filename
+        );
+    }
+
+    public function exportPDF(Request $request)
+    {
+        $today = now()->startOfDay();
+        $h7Date = now()->addDays(7)->endOfDay();
+
+        $query = VaccineSchedule::with([
+                'patient:id,branch_id,pid,nama_pasien,no_hp,alamat,dob',
+                'patient.branch:id,kode_prefix',
+                'vaccine:id,vaccine_type_id',
+                'vaccine.vaccineType:id,nama_vaksin,total_dosis'
+            ])
+            ->whereBetween('tanggal_vaksin', [$today, $h7Date])
+            ->orderBy('tanggal_vaksin', 'asc')
+            ->select('id', 'patient_id', 'vaccine_id', 'dosis_ke', 'tanggal_vaksin', 'status', 'completed_at');
+
+        // Filter by status
+        $status = $request->input('status', 'pending');
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        // Filter by date range
+        if ($request->filled('date_from')) {
+            $query->whereDate('tanggal_vaksin', '>=', $request->input('date_from'));
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('tanggal_vaksin', '<=', $request->input('date_to'));
+        }
+
+        $schedules = $query->get();
+
+        Log::info("Exporting reminders to PDF", [
+            'count' => $schedules->count(),
+            'status' => $status,
+        ]);
+
+        $pdf = Pdf::loadView('reminders.pdf', [
+            'schedules' => $schedules,
+            'filters' => [
+                'status' => $status,
+                'date_from' => $request->input('date_from'),
+                'date_to' => $request->input('date_to'),
+            ],
+            'exported_at' => now()->format('d-m-Y H:i:s'),
+        ]);
+
+        $filename = 'reminder_h7_' . now()->format('Y-m-d_H-i-s') . '.pdf';
+        
+        return $pdf->download($filename);
     }
 }

@@ -10,6 +10,22 @@
             <h1 class="text-2xl font-bold text-gray-900">Reminder H-7</h1>
             <p class="text-gray-600">Pasien yang perlu diingatkan vaksinasi dalam 7 hari ke depan</p>
         </div>
+        <!-- Export Dropdown -->
+        <div class="relative group">
+            <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition">
+                <i class="fas fa-download"></i>
+                <span>Export Data</span>
+                <i class="fas fa-chevron-down ml-1"></i>
+            </button>
+            <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <a href="{{ route('reminders.export.excel', request()->all()) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 first:rounded-t-lg">
+                    <i class="fas fa-file-excel text-green-600 mr-2"></i> Export Excel
+                </a>
+                <a href="{{ route('reminders.export.pdf', request()->all()) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 last:rounded-b-lg">
+                    <i class="fas fa-file-pdf text-red-600 mr-2"></i> Export PDF
+                </a>
+            </div>
+        </div>
     </div>
 
     <!-- Stats Cards -->
