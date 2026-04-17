@@ -6,6 +6,7 @@ use App\Imports\PatientsImport;
 use App\Models\Branch;
 use App\Models\VaccineType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -32,29 +33,57 @@ class ImportController extends Controller
 
         try {
             $branch = Branch::findOrFail($request->input('branch_id'));
-            $import = new PatientsImport($branch);
             
-            Excel::import($import, $request->file('file'));
+            // Wrap import in database transaction for all-or-nothing behavior
+            $result = DB::transaction(function () use ($request, $branch) {
+                $import = new PatientsImport($branch);
+                
+                Excel::import($import, $request->file('file'));
 
-            $importedCount = $import->getImportedCount();
-            $skippedCount = $import->getSkippedCount();
-            $errors = $import->getErrors();
+                return [
+                    'importedCount' => $import->getImportedCount(),
+                    'skippedCount' => $import->getSkippedCount(),
+                    'duplicateCount' => $import->getDuplicateCount(),
+                    'errors' => $import->getErrors(),
+                ];
+            });
 
-            $message = "Import berhasil! {$importedCount} data berhasil diimport.";
-            if ($skippedCount > 0) {
-                $message .= " {$skippedCount} data dilewati.";
-            }
+            $importedCount = $result['importedCount'];
+            $skippedCount = $result['skippedCount'];
+            $duplicateCount = $result['duplicateCount'];
+            $errors = $result['errors'];
 
-            Log::info("Excel import completed for branch {$branch->nama_cabang}: {$importedCount} imported, {$skippedCount} skipped");
-
+            // If there are validation errors but import succeeded (shouldn't happen with new logic)
             if (!empty($errors)) {
+                Log::warning("Excel import completed with warnings for branch {$branch->nama_cabang}: {$importedCount} imported, warnings: " . count($errors));
                 return redirect()->route('import.index')
-                    ->with('warning', $message)
+                    ->with('warning', "Import berhasil dengan {$importedCount} data, tetapi ada " . count($errors) . " peringatan.")
                     ->with('import_errors', $errors);
             }
 
+            Log::info("Excel import completed successfully for branch {$branch->nama_cabang}: {$importedCount} imported, {$duplicateCount} duplicates");
+
+            // Jika tidak ada data yang diimport (semua duplicate), beri notifikasi khusus
+            if ($importedCount == 0 && $duplicateCount > 0) {
+                return redirect()->route('patients.index')
+                    ->with('warning', "Tidak ada data baru yang diimport. {$duplicateCount} data sudah ada di sistem.");
+            }
+
+            // Jika tidak ada data yang diimport dan tidak ada duplicate (file kosong atau semua error)
+            if ($importedCount == 0 && $duplicateCount == 0) {
+                return redirect()->route('patients.index')
+                    ->with('warning', "Tidak ada data yang diimport.");
+            }
+
+            // Jika ada data yang diimport dan ada duplicate, beri notifikasi lengkap
+            if ($duplicateCount > 0) {
+                return redirect()->route('patients.index')
+                    ->with('success', "Import berhasil! {$importedCount} data baru diimport. {$duplicateCount} data sudah ada di sistem (tidak diimport ulang).");
+            }
+
+            // Jika ada data yang diimport dan tidak ada duplicate, beri notifikasi sukses sederhana
             return redirect()->route('patients.index')
-                ->with('success', $message);
+                ->with('success', "Import berhasil! {$importedCount} data berhasil diimport.");
 
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
             $failures = $e->failures();
@@ -67,11 +96,27 @@ class ImportController extends Controller
             Log::error("Excel validation failed: " . json_encode($errors));
 
             return redirect()->route('import.index')
-                ->with('error', 'Validasi Excel gagal')
+                ->with('error', 'Validasi Excel gagal. Semua data dibatalkan.')
                 ->with('validation_errors', $errors);
 
         } catch (\Exception $e) {
             Log::error("Excel import failed: " . $e->getMessage());
+            
+            // Check if this is a validation error from our custom validation
+            if (str_contains($e->getMessage(), 'Validasi gagal')) {
+                // Parse error message to get all details
+                $errorLines = explode("\n", $e->getMessage());
+                $errorSummary = array_shift($errorLines); // Remove first line (summary)
+                
+                // Clean up empty lines
+                $detailErrors = array_filter($errorLines, function($line) {
+                    return !empty(trim($line));
+                });
+                
+                return redirect()->route('import.index')
+                    ->with('error', 'Import dibatalkan! Terdapat ' . count($detailErrors) . ' baris yang gagal divalidasi. Semua data tidak disimpan.')
+                    ->with('import_errors', $detailErrors);
+            }
             
             return redirect()->route('import.index')
                 ->with('error', 'Import gagal: ' . $e->getMessage());

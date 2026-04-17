@@ -24,35 +24,11 @@
                     <i class="fas fa-bell text-blue-700 text-xl"></i>
                 </div>
             </div>
-        </div>
-        
-        <div class="bg-yellow-50 rounded-lg shadow p-4 border border-yellow-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-yellow-600 font-medium">Total Pending</p>
-                    <p class="text-3xl font-bold text-yellow-800">{{ $stats['total_pending'] }}</p>
-                </div>
-                <div class="bg-yellow-200 p-3 rounded-full">
-                    <i class="fas fa-clock text-yellow-700 text-xl"></i>
-                </div>
-            </div>
-        </div>
-        
-        <div class="bg-red-50 rounded-lg shadow p-4 border border-red-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-red-600 font-medium">Overdue</p>
-                    <p class="text-3xl font-bold text-red-800">{{ $stats['overdue'] }}</p>
-                </div>
-                <div class="bg-red-200 p-3 rounded-full">
-                    <i class="fas fa-exclamation-triangle text-red-700 text-xl"></i>
-                </div>
-            </div>
-        </div>
+        </div>      
     </div>
 
     <!-- Filters -->
-    <div class="bg-white rounded-lg shadow p-4">
+    {{-- <div class="bg-white rounded-lg shadow p-4">
         <form method="GET" action="{{ route('reminders.index') }}" class="flex flex-col sm:flex-row gap-4">
             <div class="sm:w-40">
                 <select name="status" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -80,7 +56,7 @@
                 </a>
             </div>
         </form>
-    </div>
+    </div> --}}
 
     <!-- Reminder Table -->
     <div class="bg-white rounded-lg shadow overflow-hidden">
@@ -163,14 +139,23 @@
                             <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex space-x-1">
                                     @if($schedule->status === 'pending')
-                                        <button onclick="markSent({{ $schedule->id }})" 
-                                                class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs transition">
-                                            <i class="fas fa-paper-plane"></i> Kirim
-                                        </button>
-                                        <button onclick="showCompleteModal({{ $schedule->id }})" 
-                                                class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs transition">
-                                            <i class="fas fa-check"></i> Selesai
-                                        </button>
+                                        @php
+                                            $isLastDose = $schedule->dosis_ke == $schedule->vaccine->vaccineType->total_dosis;
+                                        @endphp
+                                        
+                                        @if($isLastDose)
+                                            {{-- Dosis terakhir: hanya tampilkan button Selesai --}}
+                                            <button onclick="showCompleteModal({{ $schedule->id }})" 
+                                                    class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs transition">
+                                                <i class="fas fa-check"></i> Dosis Akhir
+                                            </button>
+                                        @else
+                                            {{-- Bukan dosis terakhir: tampilkan button Kirim dengan popup --}}
+                                            <button onclick="showSendModal({{ $schedule->id }})" 
+                                                    class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs transition">
+                                                <i class="fas fa-paper-plane"></i> Kirim
+                                            </button>
+                                        @endif
                                     @else
                                         <span class="text-gray-400 text-xs">-</span>
                                     @endif
@@ -213,7 +198,7 @@
                 </form>
             </div>
             <div class="flex justify-center space-x-4 mt-4">
-                <button onclick="closeModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
+                <button onclick="closeCompleteModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
                     Batal
                 </button>
                 <button onclick="submitComplete()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
@@ -224,19 +209,72 @@
     </div>
 </div>
 
+<!-- Send Modal -->
+<div id="sendModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Konfirmasi Reminder Terkirim</h3>
+            <div class="mt-2 px-7 py-3">
+                <p class="text-sm text-gray-500 mb-4">Tandai reminder sudah dikirim?</p>
+                <form id="sendForm" method="POST">
+                    @csrf
+                    <textarea name="keterangan" placeholder="Keterangan (opsional)" 
+                              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                </form>
+            </div>
+            <div class="flex justify-center space-x-4 mt-4">
+                <button onclick="closeSendModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
+                    Batal
+                </button>
+                <button onclick="submitSend()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                    Ya, Kirim
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
 let currentScheduleId = null;
 
-function markSent(scheduleId) {
-    if (!confirm('Tandai reminder sudah terkirim dan status menjadi selesai?')) return;
+function showCompleteModal(scheduleId) {
+    currentScheduleId = scheduleId;
+    document.getElementById('completeForm').action = `/reminders/${scheduleId}/complete`;
+    document.getElementById('completeModal').classList.remove('hidden');
+}
+
+function closeCompleteModal() {
+    document.getElementById('completeModal').classList.add('hidden');
+    currentScheduleId = null;
+}
+
+function submitComplete() {
+    document.getElementById('completeForm').submit();
+}
+
+function showSendModal(scheduleId) {
+    currentScheduleId = scheduleId;
+    document.getElementById('sendForm').action = `/reminders/${scheduleId}/sent`;
+    document.getElementById('sendModal').classList.remove('hidden');
+}
+
+function closeSendModal() {
+    document.getElementById('sendModal').classList.add('hidden');
+    currentScheduleId = null;
+}
+
+function submitSend() {
+    const form = document.getElementById('sendForm');
+    const formData = new FormData(form);
     
-    fetch(`/reminders/${scheduleId}/sent`, {
+    fetch(form.action, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             'Accept': 'application/json',
-        }
+        },
+        body: formData
     })
     .then(response => response.json())
     .then(data => {
@@ -252,26 +290,16 @@ function markSent(scheduleId) {
     });
 }
 
-function showCompleteModal(scheduleId) {
-    currentScheduleId = scheduleId;
-    document.getElementById('completeForm').action = `/reminders/${scheduleId}/complete`;
-    document.getElementById('completeModal').classList.remove('hidden');
-}
-
-function closeModal() {
-    document.getElementById('completeModal').classList.add('hidden');
-    currentScheduleId = null;
-}
-
-function submitComplete() {
-    document.getElementById('completeForm').submit();
-}
-
 // Close modal when clicking outside
 window.onclick = function(event) {
-    const modal = document.getElementById('completeModal');
-    if (event.target == modal) {
-        closeModal();
+    const completeModal = document.getElementById('completeModal');
+    const sendModal = document.getElementById('sendModal');
+    
+    if (event.target == completeModal) {
+        closeCompleteModal();
+    }
+    if (event.target == sendModal) {
+        closeSendModal();
     }
 }
 </script>

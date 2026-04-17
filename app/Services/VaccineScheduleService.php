@@ -26,12 +26,15 @@ class VaccineScheduleService
                 $dosisKe = $index + 1;
                 $scheduleDate = $baseDate->copy()->addMonths($interval);
 
+                // Dosis pertama langsung completed, dosis berikutnya pending
+                $status = ($dosisKe === 1) ? 'completed' : 'pending';
+
                 $schedule = VaccineSchedule::create([
                     'patient_id' => $vaccine->patient_id,
                     'vaccine_id' => $vaccine->id,
                     'dosis_ke' => $dosisKe,
                     'tanggal_vaksin' => $scheduleDate,
-                    'status' => 'pending',
+                    'status' => $status,
                 ]);
 
                 $schedules[] = $schedule;

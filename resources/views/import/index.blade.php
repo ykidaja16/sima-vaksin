@@ -47,13 +47,13 @@
                     </table>
                 </div>
 
-                <div class="mt-4 text-sm text-blue-800">
+                {{-- <div class="mt-4 text-sm text-blue-800">
                     <p class="font-medium mb-2">Contoh PID berdasarkan Cabang:</p>
                     <ul class="list-disc list-inside space-y-1 ml-2">
                         <li>Ciliwung: LXB0049356 (diawali dengan LX)</li>
                         <li>Tangkuban Perahu: LZD0010534 (diawali dengan LZ)</li>
                     </ul>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>
@@ -118,7 +118,7 @@
             @enderror
 
             <!-- Import Errors Display -->
-            @if(session('import_errors'))
+            {{-- @if(session('import_errors'))
                 <div class="bg-red-50 border border-red-200 rounded-lg p-4 max-w-2xl mx-auto">
                     <h4 class="font-semibold text-red-900 mb-2 flex items-center">
                         <i class="fas fa-exclamation-triangle mr-2"></i>
@@ -130,7 +130,7 @@
                         @endforeach
                     </ul>
                 </div>
-            @endif
+            @endif --}}
 
             <div class="flex justify-center space-x-4">
                 <a href="{{ route('patients.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-3 rounded-lg transition">

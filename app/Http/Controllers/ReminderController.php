@@ -27,7 +27,7 @@ class ReminderController extends Controller
                 'patient:id,branch_id,pid,nama_pasien,no_hp,alamat,dob',
                 'patient.branch:id,kode_prefix',
                 'vaccine:id,vaccine_type_id',
-                'vaccine.vaccineType:id,nama_vaksin'
+                'vaccine.vaccineType:id,nama_vaksin,total_dosis'
             ])
             ->whereBetween('tanggal_vaksin', [$today, $h7Date])
             ->orderBy('tanggal_vaksin', 'asc')
@@ -88,13 +88,15 @@ class ReminderController extends Controller
         }
     }
 
-    public function markReminderSent($id)
+    public function markReminderSent(Request $request, $id)
     {
         try {
             $schedule = VaccineSchedule::findOrFail($id);
             
+            $keterangan = $request->input('keterangan', 'Reminder terkirim via WhatsApp');
+            
             // Mark as completed when reminder is sent (as per requirements)
-            $schedule->markAsCompleted('Reminder terkirim via WhatsApp');
+            $schedule->markAsCompleted($keterangan);
 
             Log::info("Schedule {$id} marked as completed after reminder sent");
 

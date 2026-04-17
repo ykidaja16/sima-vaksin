@@ -25,16 +25,41 @@ class PatientController extends Controller
 
         // Filter by vaccine type
         if ($request->filled('jenis_vaksin')) {
-            $query->whereHas('vaccines', function ($q) use ($request) {
-                $q->where('jenis_vaksin', $request->input('jenis_vaksin'));
+            $query->whereHas('vaccines.vaccineType', function ($q) use ($request) {
+                $q->where('nama_vaksin', $request->input('jenis_vaksin'));
             });
         }
 
-        $patients = $query->latest()
-            ->paginate(30)
+        // Sorting
+        $sortField = $request->input('sort', 'pid');
+        $sortDirection = $request->input('direction', 'asc');
+        
+        $allowedSortFields = ['pid', 'nama_pasien', 'no_hp', 'alamat', 'dob'];
+        
+        if (in_array($sortField, $allowedSortFields)) {
+            $query->orderBy($sortField, $sortDirection);
+        } else {
+            // Default sorting: PID ascending
+            $query->orderBy('pid', 'asc');
+        }
+
+        $patients = $query->paginate(30)
             ->withQueryString();
 
-        return view('patients.index', compact('patients'));
+        // Stats for vaccine types
+        $stats = [
+            'total_hpv' => Patient::whereHas('vaccines.vaccineType', function ($q) {
+                $q->where('nama_vaksin', 'HPV');
+            })->count(),
+            'total_influenza' => Patient::whereHas('vaccines.vaccineType', function ($q) {
+                $q->where('nama_vaksin', 'Influenza');
+            })->count(),
+            'total_hepatitis' => Patient::whereHas('vaccines.vaccineType', function ($q) {
+                $q->where('nama_vaksin', 'Hepatitis');
+            })->count(),
+        ];
+
+        return view('patients.index', compact('patients', 'stats', 'sortField', 'sortDirection'));
     }
 
     public function show($id)

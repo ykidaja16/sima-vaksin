@@ -44,7 +44,7 @@
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div class="bg-white rounded-lg shadow p-4">
             <div class="flex items-center justify-between">
                 <div>
@@ -56,6 +56,39 @@
                 </div>
             </div>
         </div>
+        <div class="bg-pink-50 rounded-lg shadow p-4 border border-pink-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-pink-600 font-medium">Total Pasien HPV</p>
+                    <p class="text-2xl font-bold text-pink-700">{{ $stats['total_hpv'] }}</p>
+                </div>
+                <div class="bg-pink-200 p-3 rounded-full">
+                    <i class="fas fa-syringe text-pink-700 text-xl"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-green-50 rounded-lg shadow p-4 border border-green-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-green-600 font-medium">Total Pasien Influenza</p>
+                    <p class="text-2xl font-bold text-green-700">{{ $stats['total_influenza'] }}</p>
+                </div>
+                <div class="bg-green-200 p-3 rounded-full">
+                    <i class="fas fa-virus text-green-700 text-xl"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-yellow-50 rounded-lg shadow p-4 border border-yellow-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-yellow-600 font-medium">Total Pasien Hepatitis</p>
+                    <p class="text-2xl font-bold text-yellow-700">{{ $stats['total_hepatitis'] }}</p>
+                </div>
+                <div class="bg-yellow-200 p-3 rounded-full">
+                    <i class="fas fa-shield-virus text-yellow-700 text-xl"></i>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Table -->
@@ -64,11 +97,56 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PID</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Pasien</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No HP</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alamat</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Lahir</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <a href="{{ route('patients.index', array_merge(request()->all(), ['sort' => 'pid', 'direction' => ($sortField == 'pid' && $sortDirection == 'asc') ? 'desc' : 'asc'])) }}" class="flex items-center">
+                                PID
+                                @if($sortField == 'pid')
+                                    <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }} ml-1 text-blue-500"></i>
+                                @else
+                                    <i class="fas fa-sort ml-1 text-gray-300"></i>
+                                @endif
+                            </a>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <a href="{{ route('patients.index', array_merge(request()->all(), ['sort' => 'nama_pasien', 'direction' => ($sortField == 'nama_pasien' && $sortDirection == 'asc') ? 'desc' : 'asc'])) }}" class="flex items-center">
+                                Nama Pasien
+                                @if($sortField == 'nama_pasien')
+                                    <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }} ml-1 text-blue-500"></i>
+                                @else
+                                    <i class="fas fa-sort ml-1 text-gray-300"></i>
+                                @endif
+                            </a>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <a href="{{ route('patients.index', array_merge(request()->all(), ['sort' => 'no_hp', 'direction' => ($sortField == 'no_hp' && $sortDirection == 'asc') ? 'desc' : 'asc'])) }}" class="flex items-center">
+                                No HP
+                                @if($sortField == 'no_hp')
+                                    <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }} ml-1 text-blue-500"></i>
+                                @else
+                                    <i class="fas fa-sort ml-1 text-gray-300"></i>
+                                @endif
+                            </a>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <a href="{{ route('patients.index', array_merge(request()->all(), ['sort' => 'alamat', 'direction' => ($sortField == 'alamat' && $sortDirection == 'asc') ? 'desc' : 'asc'])) }}" class="flex items-center">
+                                Alamat
+                                @if($sortField == 'alamat')
+                                    <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }} ml-1 text-blue-500"></i>
+                                @else
+                                    <i class="fas fa-sort ml-1 text-gray-300"></i>
+                                @endif
+                            </a>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <a href="{{ route('patients.index', array_merge(request()->all(), ['sort' => 'dob', 'direction' => ($sortField == 'dob' && $sortDirection == 'asc') ? 'desc' : 'asc'])) }}" class="flex items-center">
+                                Tanggal Lahir
+                                @if($sortField == 'dob')
+                                    <i class="fas fa-sort-{{ $sortDirection == 'asc' ? 'up' : 'down' }} ml-1 text-blue-500"></i>
+                                @else
+                                    <i class="fas fa-sort ml-1 text-gray-300"></i>
+                                @endif
+                            </a>
+                        </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Vaksin</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                     </tr>
