@@ -78,7 +78,7 @@
                     <i class="fas fa-hospital mr-2"></i>Pilih Cabang
                 </label>
                 <select name="branch_id" id="branch_id" required
-                        class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('branch_id') border-red-500 @enderror">
+                        class="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('branch_id') border-red-500 @enderror">
                     <option value="">-- Pilih Cabang --</option>
                     @foreach($branches as $branch)
                         <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>

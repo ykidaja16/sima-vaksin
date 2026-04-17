@@ -37,7 +37,8 @@
                         <i class="fas fa-user mr-2"></i>Username
                     </label>
                     <input type="text" name="username" id="username" required
-                           class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('username') border-red-500 @enderror"
+                           class="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           style="border-color: {{ $errors->has('username') ? '#ef4444' : '#d1d5db' }}"
                            value="{{ old('username') }}" placeholder="Masukkan username">
                 </div>
 
@@ -46,7 +47,8 @@
                         <i class="fas fa-lock mr-2"></i>Password
                     </label>
                     <input type="password" name="password" id="password" required
-                           class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('password') border-red-500 @enderror"
+                           class="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           style="border-color: {{ $errors->has('password') ? '#ef4444' : '#d1d5db' }}"
                            placeholder="Masukkan password">
                 </div>
 

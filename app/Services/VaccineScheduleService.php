@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Patient;
+// use App\Models\Patient;
 use App\Models\Vaccine;
 use App\Models\VaccineSchedule;
 use App\Models\VaccineType;

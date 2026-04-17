@@ -9,13 +9,11 @@ use App\Models\VaccineType;
 use App\Services\VaccineScheduleService;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
-use Maatwebsite\Excel\Concerns\SkipsErrors;
 use Maatwebsite\Excel\Concerns\Importable;
 use Throwable;
 
