@@ -7,6 +7,7 @@
     <title>@yield('title', 'Sistem Reminder Vaksin')</title>
     <link rel="icon" type="image/png" href="{{ asset('images/medical.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         [x-cloak] { display: none !important; }
@@ -144,12 +145,36 @@
                                 <span class="font-medium">Reminder H-7</span>
                             </a>
                         </li>
-                        <li>
-                            <a href="{{ route('import.index') }}" 
-                               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('import.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
-                                <i class="fas fa-file-import w-5 text-center"></i>
-                                <span class="font-medium">Import Excel</span>
-                            </a>
+                        <li class="relative" x-data="{ open: {{ request()->routeIs('import.*') || request()->routeIs('manual-input.*') ? 'true' : 'false' }} }">
+                            <button @click="open = !open" 
+                                    class="w-full flex items-center justify-between space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('import.*') || request()->routeIs('manual-input.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-keyboard w-5 text-center"></i>
+                                    <span class="font-medium">Input Data</span>
+                                </div>
+                                <i class="fas fa-chevron-down text-xs transition-transform" :class="{ 'rotate-180': open }"></i>
+                            </button>
+                            
+                            <!-- Submenu -->
+                            <div x-show="open" 
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                                 x-transition:leave="transition ease-in duration-150"
+                                 x-transition:leave-start="opacity-100 transform translate-y-0"
+                                 x-transition:leave-end="opacity-0 transform -translate-y-2"
+                                 class="mt-1 space-y-1">
+                                <a href="{{ route('import.excel') }}" 
+                                   class="flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('import.*') && !request()->routeIs('manual-input.*') ? 'bg-blue-500 text-white' : 'text-blue-200 hover:bg-blue-700 hover:text-white' }} pl-12">
+                                    <i class="fas fa-file-excel w-5 text-center"></i>
+                                    <span class="text-sm">Import Excel</span>
+                                </a>
+                                <a href="{{ route('manual-input.index') }}" 
+                                   class="flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('manual-input.*') ? 'bg-blue-500 text-white' : 'text-blue-200 hover:bg-blue-700 hover:text-white' }} pl-12">
+                                    <i class="fas fa-edit w-5 text-center"></i>
+                                    <span class="text-sm">Input Manual</span>
+                                </a>
+                            </div>
                         </li>
                     @endif
 

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\ManualInputController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\UserManagementController;
@@ -32,10 +33,18 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/patients/{id}', [PatientController::class, 'show'])->name('patients.show');
         Route::delete('/patients/{id}', [PatientController::class, 'destroy'])->name('patients.destroy');
 
-        // Import Routes
-        Route::get('/import', [ImportController::class, 'index'])->name('import.index');
-        Route::post('/import', [ImportController::class, 'store'])->name('import.store');
-        Route::get('/import/template', [ImportController::class, 'downloadTemplate'])->name('import.template');
+        // Input Data Routes (Import Excel & Input Manual)
+        Route::get('/input-data', [ImportController::class, 'index'])->name('import.index');
+        Route::get('/input-data/import', [ImportController::class, 'index'])->name('import.excel');
+        Route::post('/input-data/import', [ImportController::class, 'store'])->name('import.store');
+        Route::get('/input-data/template', [ImportController::class, 'downloadTemplate'])->name('import.template');
+        
+        // Input Manual Routes
+        Route::get('/input-data/manual', [ManualInputController::class, 'index'])->name('manual-input.index');
+        Route::post('/input-data/manual/add', [ManualInputController::class, 'addToSession'])->name('manual-input.add');
+        Route::post('/input-data/manual/save', [ManualInputController::class, 'save'])->name('manual-input.save');
+        Route::post('/input-data/manual/clear', [ManualInputController::class, 'clear'])->name('manual-input.clear');
+        Route::delete('/input-data/manual/remove/{id}', [ManualInputController::class, 'remove'])->name('manual-input.remove');
 
         // Reminder Routes
         Route::get('/reminders', [ReminderController::class, 'index'])->name('reminders.index');
