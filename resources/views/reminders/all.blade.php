@@ -74,7 +74,25 @@
                                 {{ $schedule->patient->nama_pasien }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $schedule->patient->no_hp ?? '-' }}
+                                @php
+                                    $cleanNumber = preg_replace('/[^0-9]/', '', $schedule->patient->no_hp);
+                                    $waNumber = $cleanNumber;
+                                    if (substr($cleanNumber, 0, 1) === '0') {
+                                        $waNumber = '62' . substr($cleanNumber, 1);
+                                    } elseif (substr($cleanNumber, 0, 2) !== '62' && !empty($cleanNumber)) {
+                                        $waNumber = '62' . $cleanNumber;
+                                    }
+                                @endphp
+                                @if($schedule->patient->no_hp)
+                                    <a href="https://wa.me/{{ $waNumber }}" 
+                                       target="_blank" 
+                                       class="text-green-600 hover:text-green-800 flex items-center space-x-1">
+                                        <i class="fab fa-whatsapp"></i>
+                                        <span>{{ $schedule->patient->no_hp }}</span>
+                                    </a>
+                                @else
+                                    -
+                                @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 

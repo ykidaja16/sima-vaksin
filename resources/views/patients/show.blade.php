@@ -32,7 +32,25 @@
                     </div>
                     <div class="flex justify-between border-b pb-2">
                         <span class="text-gray-600">No HP</span>
-                        <span class="font-medium">{{ $patient->no_hp ?? '-' }}</span>
+                        @php
+                            $cleanNumber = preg_replace('/[^0-9]/', '', $patient->no_hp);
+                            $waNumber = $cleanNumber;
+                            if (substr($cleanNumber, 0, 1) === '0') {
+                                $waNumber = '62' . substr($cleanNumber, 1);
+                            } elseif (substr($cleanNumber, 0, 2) !== '62' && !empty($cleanNumber)) {
+                                $waNumber = '62' . $cleanNumber;
+                            }
+                        @endphp
+                        @if($patient->no_hp)
+                            <a href="https://wa.me/{{ $waNumber }}" 
+                               target="_blank" 
+                               class="font-medium text-green-600 hover:text-green-800 flex items-center space-x-1">
+                                <i class="fab fa-whatsapp"></i>
+                                <span>{{ $patient->no_hp }}</span>
+                            </a>
+                        @else
+                            <span class="font-medium">-</span>
+                        @endif
                     </div>
                     <div class="flex justify-between border-b pb-2">
                         <span class="text-gray-600">Alamat</span>
