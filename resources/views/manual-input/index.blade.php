@@ -122,7 +122,7 @@
                 <a href="{{ route('patients.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-3 rounded-lg transition">
                     <i class="fas fa-arrow-left mr-2"></i>Kembali
                 </a>
-                <button type="button" id="btnBatalEdit" onclick="resetFormToAddMode()" class="hidden bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition">
+                <button type="button" id="btnBatalEdit" onclick="resetFormToAddMode()" class="hidden bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg items-center space-x-2 transition">
                     <i class="fas fa-times"></i>
                     <span>Batal Edit</span>
                 </button>
@@ -484,6 +484,7 @@
                 
                 // Show cancel button
                 cancelBtn.classList.remove('hidden');
+                cancelBtn.classList.add('flex');
                 
                 // Scroll to form
                 form.scrollIntoView({ behavior: 'smooth' });
@@ -517,6 +518,7 @@
         
         // Hide cancel button
         cancelBtn.classList.add('hidden');
+        cancelBtn.classList.remove('flex');
         
         // Clear form
         form.reset();
