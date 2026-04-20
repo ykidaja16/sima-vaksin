@@ -219,9 +219,12 @@
                                 @endforeach
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <a href="{{ route('patients.show', $patient->id) }}" class="text-blue-600 hover:text-blue-900 mr-3">
+                                <a href="{{ route('patients.show', $patient->id) }}" class="text-blue-600 hover:text-blue-900 mr-2">
                                     <i class="fas fa-eye"></i> Detail
                                 </a>
+                                <button type="button" onclick="showEditModal({{ $patient->id }}, '{{ $patient->pid }}', '{{ $patient->nama_pasien }}', '{{ $patient->no_hp }}', '{{ $patient->alamat }}', '{{ $patient->dob ? $patient->dob->format('Y-m-d') : '' }}', {{ $patient->branch_id }})" class="text-yellow-600 hover:text-yellow-900 mr-2 bg-yellow-100 hover:bg-yellow-200 px-2 py-1 rounded text-xs transition">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
                                 <form action="{{ route('patients.destroy', $patient->id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
                                     @csrf
                                     @method('DELETE')
@@ -248,4 +251,112 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Patient Modal -->
+<div id="editModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Edit Data Pasien</h3>
+            <form id="editForm" method="POST" class="space-y-4">
+                @csrf
+                @method('PUT')
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Branch Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cabang <span class="text-red-500">*</span></label>
+                        <select name="branch_id" id="editBranchId" required
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">-- Pilih Cabang --</option>
+                            @foreach(\App\Models\Branch::where('is_active', true)->orderBy('nama_cabang')->get() as $branch)
+                                <option value="{{ $branch->id }}">
+                                    {{ $branch->nama_cabang }} (Prefix: {{ $branch->kode_prefix }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- PID -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">PID <span class="text-red-500">*</span></label>
+                        <input type="text" name="pid" id="editPid" required
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Contoh: LXB001">
+                        <p class="text-xs text-gray-500 mt-1">PID harus diawali dengan kode prefix cabang</p>
+                    </div>
+
+                    <!-- Nama Pasien -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Pasien <span class="text-red-500">*</span></label>
+                        <input type="text" name="nama_pasien" id="editNamaPasien" required
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Nama lengkap pasien">
+                    </div>
+
+                    <!-- No HP -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">No HP <span class="text-red-500">*</span></label>
+                        <input type="text" name="no_hp" id="editNoHp" required
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="08123456789">
+                    </div>
+
+                    <!-- Alamat -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Alamat <span class="text-red-500">*</span></label>
+                        <textarea name="alamat" id="editAlamat" rows="2" required
+                                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                  placeholder="Alamat lengkap pasien"></textarea>
+                    </div>
+
+                    <!-- Tanggal Lahir -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Lahir <span class="text-red-500">*</span></label>
+                        <input type="date" name="dob" id="editDob" required
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4 border-t">
+                    <button type="button" onclick="closeEditModal()" 
+                            class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg text-sm transition">
+                        Batal
+                    </button>
+                    <button type="submit" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition">
+                        <i class="fas fa-save mr-1"></i> Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    function showEditModal(id, pid, namaPasien, noHp, alamat, dob, branchId) {
+        document.getElementById('editForm').action = `/patients/${id}`;
+        document.getElementById('editPid').value = pid;
+        document.getElementById('editNamaPasien').value = namaPasien;
+        document.getElementById('editNoHp').value = noHp;
+        document.getElementById('editAlamat').value = alamat || '';
+        document.getElementById('editDob').value = dob || '';
+        document.getElementById('editBranchId').value = branchId || '';
+        
+        document.getElementById('editModal').classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').classList.add('hidden');
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('editModal');
+        if (event.target == modal) {
+            closeEditModal();
+        }
+    }
+</script>
+@endpush
 @endsection

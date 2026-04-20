@@ -272,4 +272,155 @@ class ManualInputController extends Controller
         return redirect()->route('manual-input.index')
             ->with('success', 'Daftar input berhasil dikosongkan');
     }
+
+    /**
+     * Mengambil data dari session untuk edit (AJAX)
+     */
+    public function editSession($id)
+    {
+        $temporaryData = session()->get('manual_input_data', []);
+        
+        // Cari data dengan ID yang sesuai
+        $data = null;
+        foreach ($temporaryData as $item) {
+            if ($item['id'] === $id) {
+                $data = $item;
+                break;
+            }
+        }
+        
+        if (!$data) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        }
+        
+        // Ambil branches dan vaccine types untuk dropdown
+        $branches = Branch::where('is_active', true)->orderBy('nama_cabang')->get();
+        $vaccineTypes = VaccineType::where('is_active', true)->orderBy('nama_vaksin')->get();
+        
+        return response()->json([
+            'success' => true,
+            'data' => $data,
+            'branches' => $branches,
+            'vaccineTypes' => $vaccineTypes
+        ]);
+    }
+
+    /**
+     * Update data di session (AJAX)
+     */
+    public function updateSession(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'branch_id' => 'required|exists:branches,id',
+            'pid' => 'required|string|max:50',
+            'nama_pasien' => 'required|string|max:255',
+            'no_hp' => 'required|string|max:20',
+            'alamat' => 'required|string|max:500',
+            'dob' => 'required|date',
+            'jenis_vaksin' => 'required|exists:vaccine_types,nama_vaksin',
+            'tanggal_vaksin_pertama' => 'required|date',
+        ], [
+            'branch_id.required' => 'Pilih cabang terlebih dahulu',
+            'pid.required' => 'PID wajib diisi',
+            'nama_pasien.required' => 'Nama pasien wajib diisi',
+            'no_hp.required' => 'No HP wajib diisi',
+            'alamat.required' => 'Alamat wajib diisi',
+            'dob.required' => 'Tanggal lahir wajib diisi',
+            'dob.date' => 'Format tanggal lahir tidak valid',
+            'jenis_vaksin.required' => 'Jenis vaksin wajib dipilih',
+            'jenis_vaksin.exists' => 'Jenis vaksin tidak valid',
+            'tanggal_vaksin_pertama.required' => 'Tanggal vaksin pertama wajib diisi',
+            'tanggal_vaksin_pertama.date' => 'Format tanggal vaksin pertama tidak valid',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()->all()
+            ], 422);
+        }
+
+        try {
+            $branch = Branch::findOrFail($request->branch_id);
+            
+            // Validasi PID prefix
+            $prefix = strtoupper(substr($request->pid, 0, 2));
+            $expectedPrefix = strtoupper($branch->kode_prefix);
+            
+            if ($prefix !== $expectedPrefix) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ["PID harus diawali dengan prefix cabang: {$branch->kode_prefix}"]
+                ], 422);
+            }
+
+            // Ambil data temporary yang sudah ada
+            $temporaryData = session()->get('manual_input_data', []);
+            
+            // Cari index data yang akan diupdate
+            $index = -1;
+            foreach ($temporaryData as $key => $item) {
+                if ($item['id'] === $id) {
+                    $index = $key;
+                    break;
+                }
+            }
+            
+            if ($index === -1) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['Data tidak ditemukan']
+                ], 404);
+            }
+
+            // Cek duplikat PID di temporary data (kecuali untuk data ini sendiri)
+            foreach ($temporaryData as $key => $data) {
+                if ($key !== $index && $data['pid'] === $request->pid) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ["PID {$request->pid} sudah ada di daftar input"]
+                    ], 422);
+                }
+            }
+
+            // Ambil vaccine type
+            $vaccineType = VaccineType::where('nama_vaksin', $request->jenis_vaksin)->first();
+
+            // Update data di session
+            $temporaryData[$index] = [
+                'id' => $id,
+                'branch_id' => $request->branch_id,
+                'branch_name' => $branch->nama_cabang,
+                'pid' => $request->pid,
+                'nama_pasien' => $request->nama_pasien,
+                'no_hp' => $request->no_hp,
+                'alamat' => $request->alamat,
+                'dob' => $request->dob,
+                'jenis_vaksin' => $request->jenis_vaksin,
+                'vaccine_type_id' => $vaccineType->id,
+                'tanggal_vaksin_pertama' => $request->tanggal_vaksin_pertama,
+            ];
+            
+            // Simpan ke session
+            session()->put('manual_input_data', $temporaryData);
+
+            Log::info("Data updated in manual input session: {$request->pid} - {$request->nama_pasien}");
+
+            return response()->json([
+                'success' => true,
+                'data' => $temporaryData[$index],
+                'count' => count($temporaryData)
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("Failed to update data in session: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'errors' => ['Gagal mengupdate data: ' . $e->getMessage()]
+            ], 500);
+        }
+    }
 }

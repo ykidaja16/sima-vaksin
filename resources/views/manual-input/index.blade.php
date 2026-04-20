@@ -122,6 +122,10 @@
                 <a href="{{ route('patients.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-3 rounded-lg transition">
                     <i class="fas fa-arrow-left mr-2"></i>Kembali
                 </a>
+                <button type="button" id="btnBatalEdit" onclick="resetFormToAddMode()" class="hidden bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition">
+                    <i class="fas fa-times"></i>
+                    <span>Batal Edit</span>
+                </button>
                 <button type="submit" id="btnTambah" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition">
                     <i class="fas fa-plus"></i>
                     <span>Tambah ke Daftar</span>
@@ -165,6 +169,9 @@
                         <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{{ \Carbon\Carbon::parse($data['tanggal_vaksin_pertama'])->format('d-m-Y') }}</td>
                         <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{{ $data['branch_name'] }}</td>
                         <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
+                            <button type="button" onclick="editItem('{{ $data['id'] }}')" class="text-yellow-600 hover:text-yellow-900 mr-2 bg-yellow-100 hover:bg-yellow-200 px-2 py-1 rounded text-xs transition">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
                             <button type="button" onclick="deleteItem('{{ $data['id'] }}', this)" class="text-red-600 hover:text-red-900">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -238,7 +245,7 @@
         return date.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
     }
 
-    // Handle form submission
+    // Single event listener for form submission (handles both add and update)
     document.getElementById('manualInputForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
@@ -250,52 +257,114 @@
 
         // Get CSRF token
         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-        fetch('{{ route("manual-input.add") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': token,
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                // Success - add row to table dynamically
-                hideError();
-                
-                // Check if table exists, if not create it
-                let tableContainer = document.querySelector('.bg-white.rounded-lg.shadow.p-6:not(#manualInputForm)');
-                const emptyState = document.querySelector('.bg-gray-50.rounded-lg.p-8');
-                
-                if (emptyState) {
-                    // Remove empty state and create table
-                    emptyState.remove();
-                    createTableStructure(result.data, result.count);
+        
+        // Check if in edit mode
+        const editId = this.getAttribute('data-edit-id');
+        
+        if (editId) {
+            // Update mode
+            fetch(`/input-data/manual/update/${editId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Success - update row in table
+                    hideError();
+                    
+                    // Find and update the row
+                    const rows = document.querySelectorAll('#tableBody tr');
+                    rows.forEach(row => {
+                        if (row.getAttribute('data-id') === editId) {
+                            row.innerHTML = `
+                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">${result.data.pid}</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${result.data.nama_pasien}</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${result.data.no_hp}</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${result.data.jenis_vaksin}</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${formatDate(result.data.tanggal_vaksin_pertama)}</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${result.data.branch_name}</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
+                                    <button type="button" onclick="editItem('${result.data.id}')" class="text-yellow-600 hover:text-yellow-900 mr-2 bg-yellow-100 hover:bg-yellow-200 px-2 py-1 rounded text-xs transition">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button type="button" onclick="deleteItem('${result.data.id}', this)" class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            `;
+                        }
+                    });
+                    
+                    // Reset form to add mode
+                    resetFormToAddMode();
+                    
+                    // Show success message
+                    alert('Data berhasil diupdate!');
+                    
                 } else {
-                    // Add row to existing table
-                    addRowToTable(result.data, result.count);
+                    // Error from server
+                    showError(result.errors || ['Terjadi kesalahan']);
                 }
-                
-                // Clear form fields except branch
-                const branchId = document.getElementById('branch_id').value;
-                document.getElementById('manualInputForm').reset();
-                document.getElementById('branch_id').value = branchId;
-                
-                // Focus on PID field for next input
-                document.getElementById('pid').focus();
-                
-            } else {
-                // Error from server
-                showError(result.errors || ['Terjadi kesalahan']);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showError(['Terjadi kesalahan saat mengirim data']);
-        });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError(['Terjadi kesalahan saat mengupdate data']);
+            });
+            
+        } else {
+            // Add mode - original behavior
+            fetch('{{ route("manual-input.add") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Success - add row to table dynamically
+                    hideError();
+                    
+                    // Check if table exists, if not create it
+                    let tableContainer = document.querySelector('.bg-white.rounded-lg.shadow.p-6:not(#manualInputForm)');
+                    const emptyState = document.querySelector('.bg-gray-50.rounded-lg.p-8');
+                    
+                    if (emptyState) {
+                        // Remove empty state and create table
+                        emptyState.remove();
+                        createTableStructure(result.data, result.count);
+                    } else {
+                        // Add row to existing table
+                        addRowToTable(result.data, result.count);
+                    }
+                    
+                    // Clear form fields except branch
+                    const branchId = document.getElementById('branch_id').value;
+                    document.getElementById('manualInputForm').reset();
+                    document.getElementById('branch_id').value = branchId;
+                    
+                    // Focus on PID field for next input
+                    document.getElementById('pid').focus();
+                    
+                } else {
+                    // Error from server
+                    showError(result.errors || ['Terjadi kesalahan']);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError(['Terjadi kesalahan saat mengirim data']);
+            });
+        }
     });
 
     // Create table structure when first data is added
@@ -361,6 +430,9 @@
             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${formatDate(data.tanggal_vaksin_pertama)}</td>
             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${data.branch_name}</td>
             <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
+                <button type="button" onclick="editItem('${data.id}')" class="text-yellow-600 hover:text-yellow-900 mr-2 bg-yellow-100 hover:bg-yellow-200 px-2 py-1 rounded text-xs transition">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
                 <button type="button" onclick="deleteItem('${data.id}', this)" class="text-red-600 hover:text-red-900">
                     <i class="fas fa-trash"></i>
                 </button>
@@ -370,6 +442,84 @@
         
         // Update count in header and save button
         updateCountDisplay(count);
+    }
+
+    // Edit item - load data into form
+    function editItem(id) {
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        fetch(`/input-data/manual/edit/${id}`, {
+            method: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': token,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                // Fill form with data
+                document.getElementById('branch_id').value = result.data.branch_id;
+                document.getElementById('pid').value = result.data.pid;
+                document.getElementById('nama_pasien').value = result.data.nama_pasien;
+                document.getElementById('no_hp').value = result.data.no_hp;
+                document.getElementById('alamat').value = result.data.alamat;
+                document.getElementById('dob').value = result.data.dob;
+                document.getElementById('jenis_vaksin').value = result.data.jenis_vaksin;
+                document.getElementById('tanggal_vaksin_pertama').value = result.data.tanggal_vaksin_pertama;
+                
+                // Change form behavior to update mode
+                const form = document.getElementById('manualInputForm');
+                const submitBtn = document.getElementById('btnTambah');
+                const cancelBtn = document.getElementById('btnBatalEdit');
+                
+                // Store the ID being edited
+                form.setAttribute('data-edit-id', id);
+                
+                // Change button text and color
+                submitBtn.innerHTML = '<i class="fas fa-save"></i><span>Update Data</span>';
+                submitBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                submitBtn.classList.add('bg-yellow-600', 'hover:bg-yellow-700');
+                
+                // Show cancel button
+                cancelBtn.classList.remove('hidden');
+                
+                // Scroll to form
+                form.scrollIntoView({ behavior: 'smooth' });
+                
+                // Focus on first field
+                document.getElementById('branch_id').focus();
+                
+            } else {
+                showError([result.message || 'Gagal mengambil data']);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError(['Terjadi kesalahan saat mengambil data']);
+        });
+    }
+
+    // Reset form to add mode
+    function resetFormToAddMode() {
+        const form = document.getElementById('manualInputForm');
+        const submitBtn = document.getElementById('btnTambah');
+        const cancelBtn = document.getElementById('btnBatalEdit');
+        
+        // Remove edit ID
+        form.removeAttribute('data-edit-id');
+        
+        // Reset button
+        submitBtn.innerHTML = '<i class="fas fa-plus"></i><span>Tambah ke Daftar</span>';
+        submitBtn.classList.remove('bg-yellow-600', 'hover:bg-yellow-700');
+        submitBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+        
+        // Hide cancel button
+        cancelBtn.classList.add('hidden');
+        
+        // Clear form
+        form.reset();
     }
 
     // Delete single item

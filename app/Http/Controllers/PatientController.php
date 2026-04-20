@@ -35,6 +35,94 @@ class PatientController extends Controller
         return view('patients.show', compact('patient'));
     }
 
+    public function edit($id)
+    {
+        $patient = Patient::with(['vaccines.vaccineType'])->findOrFail($id);
+        $branches = \App\Models\Branch::where('is_active', true)->orderBy('nama_cabang')->get();
+        $vaccineTypes = \App\Models\VaccineType::where('is_active', true)->orderBy('nama_vaksin')->get();
+        
+        return view('patients.edit', compact('patient', 'branches', 'vaccineTypes'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'branch_id' => 'required|exists:branches,id',
+            'pid' => 'required|string|max:50',
+            'nama_pasien' => 'required|string|max:255',
+            'no_hp' => 'required|string|max:20',
+            'alamat' => 'required|string|max:500',
+            'dob' => 'required|date',
+        ], [
+            'branch_id.required' => 'Pilih cabang terlebih dahulu',
+            'pid.required' => 'PID wajib diisi',
+            'nama_pasien.required' => 'Nama pasien wajib diisi',
+            'no_hp.required' => 'No HP wajib diisi',
+            'alamat.required' => 'Alamat wajib diisi',
+            'dob.required' => 'Tanggal lahir wajib diisi',
+            'dob.date' => 'Format tanggal lahir tidak valid',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $patient = Patient::findOrFail($id);
+            
+            // Validasi PID prefix
+            $branch = \App\Models\Branch::findOrFail($request->branch_id);
+            $prefix = strtoupper(substr($request->pid, 0, 2));
+            $expectedPrefix = strtoupper($branch->kode_prefix);
+            
+            if ($prefix !== $expectedPrefix) {
+                return redirect()->back()
+                    ->with('error', "PID harus diawali dengan prefix cabang: {$branch->kode_prefix}")
+                    ->withInput();
+            }
+
+            // Cek duplikat PID (kecuali untuk patient ini sendiri)
+            $existingPatient = Patient::where('pid', $request->pid)
+                ->where('id', '!=', $id)
+                ->first();
+            if ($existingPatient) {
+                return redirect()->back()
+                    ->with('error', "PID {$request->pid} sudah digunakan oleh pasien lain")
+                    ->withInput();
+            }
+
+            // Update patient
+            $patient->update([
+                'branch_id' => $request->branch_id,
+                'pid' => $request->pid,
+                'nama_pasien' => $request->nama_pasien,
+                'no_hp' => $request->no_hp,
+                'alamat' => $request->alamat,
+                'dob' => $request->dob,
+            ]);
+
+            DB::commit();
+
+            Log::info("Patient updated: {$patient->pid} - {$patient->nama_pasien}");
+
+            return redirect()->route('patients.index')
+                ->with('success', 'Data pasien berhasil diupdate');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error("Update patient gagal: " . $e->getMessage());
+
+            return redirect()->back()
+                ->with('error', 'Gagal mengupdate data pasien: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+
     public function destroy($id)
     {
         try {

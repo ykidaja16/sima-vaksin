@@ -31,6 +31,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/patients/export/excel', [PatientController::class, 'exportExcel'])->name('patients.export.excel');
         Route::get('/patients/export/pdf', [PatientController::class, 'exportPDF'])->name('patients.export.pdf');
         Route::get('/patients/{id}', [PatientController::class, 'show'])->name('patients.show');
+        Route::get('/patients/{id}/edit', [PatientController::class, 'edit'])->name('patients.edit');
+        Route::put('/patients/{id}', [PatientController::class, 'update'])->name('patients.update');
         Route::delete('/patients/{id}', [PatientController::class, 'destroy'])->name('patients.destroy');
 
         // Input Data Routes (Import Excel & Input Manual)
@@ -45,6 +47,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/input-data/manual/save', [ManualInputController::class, 'save'])->name('manual-input.save');
         Route::post('/input-data/manual/clear', [ManualInputController::class, 'clear'])->name('manual-input.clear');
         Route::delete('/input-data/manual/remove/{id}', [ManualInputController::class, 'remove'])->name('manual-input.remove');
+        Route::get('/input-data/manual/edit/{id}', [ManualInputController::class, 'editSession'])->name('manual-input.edit');
+        Route::put('/input-data/manual/update/{id}', [ManualInputController::class, 'updateSession'])->name('manual-input.update');
 
         // Reminder Routes
         Route::get('/reminders', [ReminderController::class, 'index'])->name('reminders.index');
