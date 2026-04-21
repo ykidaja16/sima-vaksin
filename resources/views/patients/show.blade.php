@@ -121,11 +121,29 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    {{ $schedule->status === 'completed' ? 'bg-green-100 text-green-800' : 
-                                       ($schedule->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                                        'bg-red-100 text-red-800') }}">
-                                    {{ ucfirst($schedule->status) }}
+                                @php
+                                    $displayStatus = $schedule->status;
+                                    $badgeClass = 'bg-gray-100 text-gray-800';
+                                    
+                                    if ($schedule->dosis_ke == 1) {
+                                        $displayStatus = 'completed';
+                                        $badgeClass = 'bg-green-100 text-green-800';
+                                    } elseif ($schedule->status === 'completed') {
+                                        $displayStatus = 'completed';
+                                        $badgeClass = 'bg-green-100 text-green-800';
+                                    } elseif ($schedule->tanggal_vaksin->isPast() && is_null($schedule->reminder_sent_at)) {
+                                        $displayStatus = 'tidak reminder';
+                                        $badgeClass = 'bg-red-100 text-red-800';
+                                    } elseif ($schedule->status === 'pending') {
+                                        $displayStatus = 'pending';
+                                        $badgeClass = 'bg-yellow-100 text-yellow-800';
+                                    } else {
+                                        $displayStatus = $schedule->status;
+                                        $badgeClass = 'bg-red-100 text-red-800';
+                                    }
+                                @endphp
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $badgeClass }}">
+                                    {{ ucfirst($displayStatus) }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
