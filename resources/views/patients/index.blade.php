@@ -166,6 +166,7 @@
                             </a>
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Vaksin</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tgl Vaksin Pertama</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
@@ -218,25 +219,35 @@
                                     </span>
                                 @endforeach
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @forelse($patient->vaccines as $vaccine)
+                                    <div class="text-xs {{ $loop->last ? '' : 'mb-1' }}">
+                                        <span class="font-medium">{{ $vaccine->jenis_vaksin }}:</span>
+                                        {{ $vaccine->tanggal_vaksin_pertama ? $vaccine->tanggal_vaksin_pertama->format('d-m-Y') : '-' }}
+                                    </div>
+                                @empty
+                                    <span class="text-gray-400">-</span>
+                                @endforelse
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <a href="{{ route('patients.show', $patient->id) }}" class="text-blue-600 hover:text-blue-900 mr-2">
-                                    <i class="fas fa-eye"></i> Detail
+                                <a href="{{ route('patients.show', $patient->id) }}" class="text-blue-600 hover:text-blue-900 mr-3" title="Detail">
+                                    <i class="fas fa-eye"></i>
                                 </a>
-                                <button type="button" onclick="showEditModal({{ $patient->id }}, '{{ $patient->pid }}', '{{ $patient->nama_pasien }}', '{{ $patient->no_hp }}', '{{ $patient->alamat }}', '{{ $patient->dob ? $patient->dob->format('Y-m-d') : '' }}', {{ $patient->branch_id }})" class="text-yellow-600 hover:text-yellow-900 mr-2 bg-yellow-100 hover:bg-yellow-200 px-2 py-1 rounded text-xs transition">
-                                    <i class="fas fa-edit"></i> Edit
+                                <button type="button" onclick="showEditModal({{ $patient->id }}, '{{ $patient->pid }}', '{{ $patient->nama_pasien }}', '{{ $patient->no_hp }}', '{{ $patient->alamat }}', '{{ $patient->dob ? $patient->dob->format('Y-m-d') : '' }}', {{ $patient->branch_id }})" class="text-yellow-600 hover:text-yellow-900 mr-3" title="Edit">
+                                    <i class="fas fa-edit"></i>
                                 </button>
                                 <form action="{{ route('patients.destroy', $patient->id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900">
-                                        <i class="fas fa-trash"></i> Hapus
+                                    <button type="submit" class="text-red-600 hover:text-red-900" title="Hapus">
+                                        <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                            <td colspan="8" class="px-6 py-4 text-center text-gray-500">
                                 Tidak ada data pasien ditemukan
                             </td>
                         </tr>
