@@ -45,10 +45,13 @@
             <div class="sm:w-48">
                 <select name="jenis_vaksin" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option value="">Semua Vaksin</option>
-                    <option value="HPV" {{ request('jenis_vaksin') == 'HPV' ? 'selected' : '' }}>HPV</option>
-                    <option value="Hepatitis" {{ request('jenis_vaksin') == 'Hepatitis' ? 'selected' : '' }}>Hepatitis</option>
-                    <option value="Influenza" {{ request('jenis_vaksin') == 'Influenza' ? 'selected' : '' }}>Influenza</option>
+                    @foreach($vaccineTypes as $type)
+                        <option value="{{ $type->nama_vaksin }}" {{ request('jenis_vaksin') == $type->nama_vaksin ? 'selected' : '' }}>
+                            {{ $type->nama_vaksin }}
+                        </option>
+                    @endforeach
                 </select>
+
             </div>
             <div class="flex space-x-2">
                 <button type="submit" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition">
@@ -74,40 +77,31 @@
                 </div>
             </div>
         </div>
-        <div class="bg-pink-50 rounded-lg shadow p-4 border border-pink-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-pink-600 font-medium">Total Pasien HPV</p>
-                    <p class="text-2xl font-bold text-pink-700">{{ $stats['total_hpv'] }}</p>
-                </div>
-                <div class="bg-pink-200 p-3 rounded-full">
-                    <i class="fas fa-syringe text-pink-700 text-xl"></i>
-                </div>
-            </div>
-        </div>
-        <div class="bg-green-50 rounded-lg shadow p-4 border border-green-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-green-600 font-medium">Total Pasien Influenza</p>
-                    <p class="text-2xl font-bold text-green-700">{{ $stats['total_influenza'] }}</p>
-                </div>
-                <div class="bg-green-200 p-3 rounded-full">
-                    <i class="fas fa-virus text-green-700 text-xl"></i>
-                </div>
-            </div>
-        </div>
-        <div class="bg-yellow-50 rounded-lg shadow p-4 border border-yellow-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-yellow-600 font-medium">Total Pasien Hepatitis</p>
-                    <p class="text-2xl font-bold text-yellow-700">{{ $stats['total_hepatitis'] }}</p>
-                </div>
-                <div class="bg-yellow-200 p-3 rounded-full">
-                    <i class="fas fa-shield-virus text-yellow-700 text-xl"></i>
+        @foreach($vaccineTypes as $type)
+            @php
+                $total = $stats[$type->id] ?? 0;
+                $colors = [
+                    'HPV' => ['bg' => 'pink', 'border' => 'pink-200', 'text' => 'pink-600', 'textBold' => 'pink-700', 'icon' => 'syringe'],
+                    'Influenza' => ['bg' => 'green', 'border' => 'green-200', 'text' => 'green-600', 'textBold' => 'green-700', 'icon' => 'virus'],
+                    'Hepatitis' => ['bg' => 'yellow', 'border' => 'yellow-200', 'text' => 'yellow-600', 'textBold' => 'yellow-700', 'icon' => 'shield-virus'],
+                    'default' => ['bg' => 'indigo', 'border' => 'indigo-200', 'text' => 'indigo-600', 'textBold' => 'indigo-700', 'icon' => 'syringe']
+                ];
+                $color = $colors[$type->nama_vaksin] ?? $colors['default'];
+            @endphp
+            <div class="bg-{{ $color['bg'] }}-50 rounded-lg shadow p-4 border border-{{ $color['border'] }}">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm {{ $color['text'] }} font-medium">Total Pasien {{ $type->nama_vaksin }}</p>
+                        <p class="text-2xl font-bold {{ $color['textBold'] }}">{{ $total }}</p>
+                    </div>
+                    <div class="bg-{{ $color['bg'] }}-200 p-3 rounded-full">
+                        <i class="fas fa-{{ $color['icon'] }} {{ $color['text'] }} text-xl"></i>
+                    </div>
                 </div>
             </div>
-        </div>
+        @endforeach
     </div>
+
 
     <!-- Table -->
     <div class="bg-white rounded-lg shadow overflow-hidden">

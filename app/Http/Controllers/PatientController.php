@@ -22,11 +22,12 @@ class PatientController extends Controller
         $patients = $query->paginate(30)->withQueryString();
 
         $stats = $this->getStats();
+        $vaccineTypes = \App\Models\VaccineType::where('is_active', true)->orderBy('nama_vaksin')->get();
 
         $sortField = $request->input('sort', 'pid');
         $sortDirection = $request->input('direction', 'asc');
 
-        return view('patients.index', compact('patients', 'stats', 'sortField', 'sortDirection'));
+        return view('patients.index', compact('patients', 'stats', 'vaccineTypes', 'sortField', 'sortDirection'));
     }
 
     public function show($id)
@@ -237,21 +238,18 @@ class PatientController extends Controller
     }
 
     /**
-     * 🔹 STATS (OPTIMIZED - 1 QUERY)
+     * 🔹 STATS (OPTIMIZED - 1 QUERY, DYNAMIC)
      */
     private function getStats()
     {
         $raw = Patient::join('vaccines', 'patients.id', '=', 'vaccines.patient_id')
             ->join('vaccine_types', 'vaccines.vaccine_type_id', '=', 'vaccine_types.id')
-            ->whereIn('vaccine_types.nama_vaksin', ['HPV', 'Influenza', 'Hepatitis'])
-            ->selectRaw('vaccine_types.nama_vaksin, COUNT(DISTINCT patients.id) as total')
-            ->groupBy('vaccine_types.nama_vaksin')
-            ->pluck('total', 'nama_vaksin');
+            ->where('vaccine_types.is_active', true)
+            ->selectRaw('vaccine_types.id as vaccine_type_id, COUNT(DISTINCT patients.id) as total')
+            ->groupBy('vaccine_types.id')
+            ->pluck('total', 'vaccine_type_id')
+            ->toArray();
 
-        return [
-            'total_hpv' => $raw['HPV'] ?? 0,
-            'total_influenza' => $raw['Influenza'] ?? 0,
-            'total_hepatitis' => $raw['Hepatitis'] ?? 0,
-        ];
+        return $raw;
     }
 }
