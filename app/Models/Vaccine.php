@@ -50,4 +50,26 @@ class Vaccine extends Model
     {
         return $this->vaccineType?->nama_vaksin ?? 'Unknown';
     }
+
+    public function isDosisLengkap(): bool
+    {
+        $totalDosis = $this->getTotalDosisAttribute();
+        $schedules = $this->schedules;
+        
+        $dosisDiterima = $schedules->count();
+        if ($dosisDiterima < $totalDosis) {
+            return false;
+        }
+        
+        // Cek apakah tanggal vaksin terakhir sudah lewat
+        $lastSchedule = $schedules->sortByDesc('tanggal_vaksin')->first();
+        if (!$lastSchedule) {
+            return false;
+        }
+        
+        return $lastSchedule->tanggal_vaksin->lte(now());
+    }
+
+
+
 }

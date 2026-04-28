@@ -193,7 +193,7 @@ class PatientController extends Controller
      */
     private function baseQuery()
     {
-        return Patient::with(['vaccines.vaccineType', 'vaccineSchedules']);
+        return Patient::with(['vaccines.vaccineType', 'vaccines.schedules']);
     }
 
     /**

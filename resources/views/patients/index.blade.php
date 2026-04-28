@@ -204,14 +204,19 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                @foreach($patient->vaccines as $vaccine)
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                @forelse($patient->vaccines as $vaccine)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium space-x-1
                                         {{ $vaccine->jenis_vaksin === 'HPV' ? 'bg-pink-100 text-pink-800' : 
                                            ($vaccine->jenis_vaksin === 'Hepatitis' ? 'bg-yellow-100 text-yellow-800' : 
                                             'bg-green-100 text-green-800') }}">
-                                        {{ $vaccine->jenis_vaksin }}
+                                        <span>{{ $vaccine->jenis_vaksin }}</span>
+                                        @if($vaccine->isDosisLengkap())
+                                            <i class="fas fa-check-circle text-green-500 text-sm" title="Dosis Lengkap"></i>
+                                        @endif
                                     </span>
-                                @endforeach
+                                @empty
+                                    <span class="text-gray-400 text-xs">Belum ada vaksin</span>
+                                @endforelse
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 @forelse($patient->vaccines as $vaccine)
