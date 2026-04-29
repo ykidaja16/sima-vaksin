@@ -1,11 +1,17 @@
-# TODO: Implementasi Centang Vaksin Lengkap - ✅ SELESAI
+# TODO: Perbaikan Validasi PID Input Data Manual
 
-## [x] Step 1: Tambah method isDosisLengkap() di app/Models/Vaccine.php
-## [x] Step 2: Update PatientController.php untuk eager loading vaccines.schedules  
-## [x] Step 3: Modifikasi tampilan di patients/index.blade.php untuk tampilkan centang
-## [x] Step 4: Test & Complete
+## Status: 🚀 Sedang dikerjakan
 
-**HASIL:**
-- Simbol centang ✅ hijau muncul di sebelah nama vaksin jika `dosis_diterima >= total_dosis`
-- UI design, flow, dan fungsi existing tidak berubah
-- Optimasi dengan eager loading, tidak ada N+1 query
+### Plan Breakdown:
+- [ ] **Step 1**: Update method `addToSession()` di ManualInputController.php
+  - Ubah validasi PID untuk cek nama juga
+- [ ] **Step 2**: Update method `save()` di ManualInputController.php  
+  - Handle PID duplikat dengan nama sama (tambah vaksin baru)
+- [ ] **Step 3**: Test implementasi
+  - Test case 1: PID sama + nama sama → allow
+  - Test case 2: PID sama + nama berbeda → block  
+  - Test case 3: Batch save duplikat
+- [ ] **Step 4**: Complete & cleanup
+
+**File target**: `app/Http/Controllers/ManualInputController.php`
+**Estimasi**: 2 file edits, no UI changes

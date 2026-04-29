@@ -77,14 +77,15 @@ class ManualInputController extends Controller
                 ], 422);
             }
 
-            // Cek duplikat PID di database
+            // Cek duplikat PID di database - hanya blokir jika nama berbeda
             $existingPatient = Patient::where('pid', $request->pid)->first();
-            if ($existingPatient) {
+            if ($existingPatient && strtoupper(trim($existingPatient->nama_pasien)) !== strtoupper(trim($request->nama_pasien))) {
                 return response()->json([
                     'success' => false,
                     'errors' => ["PID {$request->pid} sudah ada di database dengan nama {$existingPatient->nama_pasien}"]
                 ], 422);
             }
+
 
             // Ambil data temporary yang sudah ada
             $temporaryData = session()->get('manual_input_data', []);
@@ -159,29 +160,37 @@ class ManualInputController extends Controller
 
             foreach ($temporaryData as $data) {
                 try {
-                    // Cek ulang duplikat PID di database
+                    // Cek ulang duplikat PID di database - allow jika nama sama
                     $existingPatient = Patient::where('pid', $data['pid'])->first();
                     if ($existingPatient) {
-                        $errors[] = "PID {$data['pid']} sudah ada di database, dilewati";
-                        continue;
+                        if (strtoupper(trim($existingPatient->nama_pasien)) !== strtoupper(trim($data['nama_pasien']))) {
+                            $errors[] = "PID {$data['pid']} nama berbeda ({$data['nama_pasien']} ≠ {$existingPatient->nama_pasien}), dilewati";
+                            continue;
+                        } else {
+                            // Patient sudah ada dengan nama sama, hanya tambah vaksin baru
+                            $patient = $existingPatient;
+                            Log::info("PID {$data['pid']} sudah ada, menambah vaksin baru");
+                        }
+                    } else {
+                        // Buat patient baru
+                        $patient = Patient::create([
+                            'branch_id' => $data['branch_id'],
+                            'pid' => $data['pid'],
+                            'nama_pasien' => $data['nama_pasien'],
+                            'no_hp' => $data['no_hp'],
+                            'alamat' => $data['alamat'],
+                            'dob' => $data['dob'],
+                        ]);
                     }
 
-                    // 1. Buat Patient
-                    $patient = Patient::create([
-                        'branch_id' => $data['branch_id'],
-                        'pid' => $data['pid'],
-                        'nama_pasien' => $data['nama_pasien'],
-                        'no_hp' => $data['no_hp'],
-                        'alamat' => $data['alamat'],
-                        'dob' => $data['dob'],
-                    ]);
+                    // Buat Vaccine
 
-                    // 2. Buat Vaccine
                     $vaccine = Vaccine::create([
                         'patient_id' => $patient->id,
                         'vaccine_type_id' => $data['vaccine_type_id'],
                         'tanggal_vaksin_pertama' => $data['tanggal_vaksin_pertama'],
                     ]);
+
 
                     // 3. Generate jadwal vaksin
                     $scheduleService = new VaccineScheduleService();
