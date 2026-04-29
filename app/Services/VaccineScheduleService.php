@@ -82,10 +82,11 @@ class VaccineScheduleService
         })->toArray();
     }
 
-    public function completeSchedule(int $scheduleId, string $keterangan = null): bool
+    public function completeSchedule(int $scheduleId, ?string $keterangan = null): bool
     {
         $schedule = VaccineSchedule::findOrFail($scheduleId);
         $schedule->markAsCompleted($keterangan);
+
         
         Log::info("Schedule {$scheduleId} marked as completed");
         

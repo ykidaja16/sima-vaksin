@@ -37,7 +37,7 @@ class VaccineSchedule extends Model
         return $this->belongsTo(Vaccine::class);
     }
 
-    public function markAsCompleted(string $keterangan = null): void
+    public function markAsCompleted(?string $keterangan = null): void
     {
         $this->update([
             'status' => 'completed',
