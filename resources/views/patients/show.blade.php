@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
+@php
+    $vaccineTypesList = $vaccineTypes ?? [];
+    $canDelete = $patient->vaccines->count() > 1;
+@endphp
+
 @section('title', 'Detail Pasien - ' . $patient->nama_pasien)
 
 @section('content')
@@ -74,12 +79,25 @@
                     <div class="bg-gray-50 rounded-lg p-4 mb-3">
                         <div class="flex items-center justify-between mb-2">
                             <span class="font-semibold text-gray-900">{{ $vaccine->jenis_vaksin }}</span>
-                            <span class="text-sm text-gray-500">
-                                Pertama: {{ $vaccine->tanggal_vaksin_pertama->format('d-m-Y') }}
-                            </span>
+                            <div class="flex items-center space-x-2">
+                                <button type="button" 
+                                        onclick="showEditDateModal({{ $vaccine->id }}, '{{ $vaccine->jenis_vaksin }}', {{ $vaccine->vaccine_type_id ?? 'null' }}, '{{ $vaccine->tanggal_vaksin_pertama->format('Y-m-d') }}')"
+                                        class="text-blue-600 hover:text-blue-800 text-sm flex items-center space-x-1">
+                                    <i class="fas fa-edit"></i>
+                                    <span>Edit</span>
+                                </button>
+                                @if($canDelete)
+                                <button type="button" 
+                                        onclick="showDeleteModal({{ $vaccine->id }}, '{{ $vaccine->jenis_vaksin }}')"
+                                        class="text-red-600 hover:text-red-800 text-sm flex items-center space-x-1">
+                                    <i class="fas fa-trash"></i>
+                                    <span>Hapus</span>
+                                </button>
+                                @endif
+                            </div>
                         </div>
                         <div class="text-sm text-gray-600">
-                            Total Dosis: {{ $vaccine->total_dosis }}
+                            Pertama: {{ $vaccine->tanggal_vaksin_pertama->format('d-m-Y') }} | Total Dosis: {{ $vaccine->total_dosis }}
                         </div>
                     </div>
                 @endforeach
@@ -162,4 +180,100 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Date Modal -->
+<div id="editDateModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+        <div class="text-lg font-semibold text-gray-900 mb-4">Edit Jadwal Vaksin</div>
+        <form id="editDateForm" method="POST">
+            @csrf
+            @method('PUT')
+            <input type="hidden" id="modalVaccineId" name="vaccine_id" value="">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Vaksin</label>
+                <select id="modalVaccineType" 
+                        name="vaccine_type_id" 
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    @foreach($vaccineTypesList as $vt)
+                        <option value="{{ $vt->id }}">{{ $vt->nama_vaksin }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Dosis Pertama</label>
+                <input type="date" 
+                       id="modalFirstDate" 
+                       name="tanggal_vaksin_pertama" 
+                       class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div class="flex justify-end space-x-2">
+                <button type="button" 
+                        onclick="closeEditDateModal()" 
+                        class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded">
+                    Batal
+                </button>
+                <button type="submit" 
+                        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded">
+                    Simpan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+        <div class="text-lg font-semibold text-gray-900 mb-4">Hapus Vaccine</div>
+        <p class="text-gray-600 mb-4">Apakah Anda yakin ingin menghapus vaccine <span id="deleteVaccineName" class="font-medium"></span>? Semua jadwal juga akan dihapus.</p>
+        <form id="deleteForm" method="POST">
+            @csrf
+            @method('DELETE')
+            <input type="hidden" id="deleteVaccineId" name="vaccine_id" value="">
+            <div class="flex justify-end space-x-2">
+                <button type="button" 
+                        onclick="closeDeleteModal()" 
+                        class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded">
+                    Batal
+                </button>
+                <button type="submit" 
+                        class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded">
+                    Hapus
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function showEditDateModal(vaccineId, vaccineName, vaccineTypeId, currentDate) {
+    document.getElementById('modalVaccineId').value = vaccineId;
+    document.getElementById('modalVaccineType').value = vaccineTypeId;
+    document.getElementById('modalFirstDate').value = currentDate;
+    document.getElementById('editDateForm').action = '/patients/{{ $patient->id }}/vaccine-first-date';
+    document.getElementById('editDateModal').classList.remove('hidden');
+}
+function closeEditDateModal() {
+    document.getElementById('editDateModal').classList.add('hidden');
+}
+function showDeleteModal(vaccineId, vaccineName) {
+    document.getElementById('deleteVaccineId').value = vaccineId;
+    document.getElementById('deleteVaccineName').textContent = vaccineName;
+    document.getElementById('deleteForm').action = '/patients/{{ $patient->id }}/vaccine';
+    document.getElementById('deleteModal').classList.remove('hidden');
+}
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+}
+window.onclick = function(event) {
+    const editModal = document.getElementById('editDateModal');
+    const deleteModal = document.getElementById('deleteModal');
+    if (event.target == editModal) {
+        closeEditDateModal();
+    }
+    if (event.target == deleteModal) {
+        closeDeleteModal();
+    }
+}
+</script>
 @endsection

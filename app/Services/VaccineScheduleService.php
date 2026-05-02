@@ -109,12 +109,52 @@ class VaccineScheduleService
         return $vaccineType?->interval_bulan ?? [0];
     }
 
-    public static function getTotalDoses(string $jenisVaksin): int
+public static function getTotalDoses(string $jenisVaksin): int
     {
         $vaccineType = VaccineType::where('nama_vaksin', $jenisVaksin)
             ->where('is_active', true)
             ->first();
             
         return $vaccineType?->total_dosis ?? 1;
+    }
+
+    public function updateSchedulesByFirstDate(Vaccine $vaccine, Carbon $newFirstDate): array
+    {
+        // Update tanggal vaksin pertama di Vaccine
+        $vaccine->tanggal_vaksin_pertama = $newFirstDate;
+        $vaccine->save();
+
+        // Get intervals dari vaccine type
+        $vaccineType = $vaccine->vaccineType;
+        $intervals = $vaccineType?->interval_bulan ?? [0];
+        $baseDate = $newFirstDate->copy();
+
+        // Hapus semua schedule lama (kecuali dosis pertama jika sudah completed)
+        // Hapus semua schedule dan buat ulang
+        $vaccine->schedules()->delete();
+
+        // Generate ulang semua schedules
+        $schedules = [];
+        foreach ($intervals as $index => $interval) {
+            $dosisKe = $index + 1;
+            $scheduleDate = $baseDate->copy()->addMonths($interval);
+
+            // Dosis pertama langsung completed, dosis berikutnya pending
+            $status = ($dosisKe === 1) ? 'completed' : 'pending';
+
+            $schedule = VaccineSchedule::create([
+                'patient_id' => $vaccine->patient_id,
+                'vaccine_id' => $vaccine->id,
+                'dosis_ke' => $dosisKe,
+                'tanggal_vaksin' => $scheduleDate,
+                'status' => $status,
+            ]);
+
+            $schedules[] = $schedule;
+        }
+
+        Log::info("Regenerated schedules for vaccine {$vaccine->id} with new first date: {$newFirstDate->format('Y-m-d')}");
+
+        return $schedules;
     }
 }

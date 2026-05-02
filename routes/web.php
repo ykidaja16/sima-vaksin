@@ -30,7 +30,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/patients', [PatientController::class, 'index'])->name('patients.index');
         Route::get('/patients/export/excel', [PatientController::class, 'exportExcel'])->name('patients.export.excel');
         Route::get('/patients/export/pdf', [PatientController::class, 'exportPDF'])->name('patients.export.pdf');
-        Route::get('/patients/{id}', [PatientController::class, 'show'])->name('patients.show');
+Route::get('/patients/{id}', [PatientController::class, 'show'])->name('patients.show');
+        Route::put('/patients/{id}/vaccine-first-date', [PatientController::class, 'updateVaccineFirstDate'])->name('patients.update-vaccine-first-date');
+        Route::delete('/patients/{id}/vaccine', [PatientController::class, 'destroyVaccine'])->name('patients.destroy-vaccine');
         Route::get('/patients/{id}/edit', [PatientController::class, 'edit'])->name('patients.edit');
         Route::put('/patients/{id}', [PatientController::class, 'update'])->name('patients.update');
         Route::delete('/patients/{id}', [PatientController::class, 'destroy'])->name('patients.destroy');

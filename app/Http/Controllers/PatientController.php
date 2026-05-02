@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Exports\PatientsExport;
 use App\Models\Patient;
+use App\Models\Vaccine;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -30,10 +32,11 @@ class PatientController extends Controller
         return view('patients.index', compact('patients', 'stats', 'vaccineTypes', 'sortField', 'sortDirection'));
     }
 
-    public function show($id)
+public function show($id)
     {
         $patient = Patient::with(['vaccines.schedules'])->findOrFail($id);
-        return view('patients.show', compact('patient'));
+        $vaccineTypes = \App\Models\VaccineType::where('is_active', true)->orderBy('nama_vaksin')->get();
+        return view('patients.show', compact('patient', 'vaccineTypes'));
     }
 
     public function edit($id)
@@ -240,7 +243,47 @@ class PatientController extends Controller
     /**
      * 🔹 STATS (OPTIMIZED - 1 QUERY, DYNAMIC)
      */
-    private function getStats()
+public function updateVaccineFirstDate(Request $request, $id)
+    {
+        $request->validate([
+            'vaccine_id' => 'required|exists:vaccines,id',
+            'vaccine_type_id' => 'required|exists:vaccine_types,id',
+            'tanggal_vaksin_pertama' => 'required|date',
+        ], [
+            'vaccine_id.required' => 'Vaccine ID wajib dipilih',
+            'vaccine_id.exists' => 'Vaccine tidak ditemukan',
+            'vaccine_type_id.required' => 'Jenis vaksin wajib dipilih',
+            'vaccine_type_id.exists' => 'Jenis vaksin tidak ditemukan',
+            'tanggal_vaksin_pertama.required' => 'Tanggal dosis pertama wajib diisi',
+            'tanggal_vaksin_pertama.date' => 'Format tanggal tidak valid',
+        ]);
+
+        try {
+            $patient = Patient::findOrFail($id);
+            $vaccine = Vaccine::where('id', $request->vaccine_id)
+                ->where('patient_id', $id)
+                ->firstOrFail();
+
+            // Update vaccine_type_id jika berbeda
+            $vaccine->vaccine_type_id = $request->vaccine_type_id;
+            $vaccine->save();
+
+            $newDate = Carbon::parse($request->tanggal_vaksin_pertama);
+
+            $service = new \App\Services\VaccineScheduleService();
+            $service->updateSchedulesByFirstDate($vaccine, $newDate);
+
+            Log::info("Updated vaccine type and first date for vaccine {$vaccine->id}: type={$request->vaccine_type_id}, date={$newDate->format('Y-m-d')}");
+
+            return redirect()->back()->with('success', 'Jadwal vaksinasi berhasil diupdate');
+
+        } catch (\Exception $e) {
+            Log::error("Update vaccine first date gagal: " . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengupdate jadwal: ' . $e->getMessage());
+        }
+    }
+
+private function getStats()
     {
         $raw = Patient::join('vaccines', 'patients.id', '=', 'vaccines.patient_id')
             ->join('vaccine_types', 'vaccines.vaccine_type_id', '=', 'vaccine_types.id')
@@ -251,5 +294,42 @@ class PatientController extends Controller
             ->toArray();
 
         return $raw;
+    }
+
+    public function destroyVaccine(Request $request, $id)
+    {
+        $request->validate([
+            'vaccine_id' => 'required|exists:vaccines,id',
+        ], [
+            'vaccine_id.required' => 'Vaccine ID wajib dipilih',
+            'vaccine_id.exists' => 'Vaccine tidak ditemukan',
+        ]);
+
+        try {
+            $patient = Patient::findOrFail($id);
+            $vaccine = Vaccine::where('id', $request->vaccine_id)
+                ->where('patient_id', $id)
+                ->firstOrFail();
+
+            // Cek apakah ini vaccine terakhir
+            $vaccineCount = Vaccine::where('patient_id', $id)->count();
+            if ($vaccineCount <= 1) {
+                return redirect()->back()->with('error', 'Tidak dapat menghapus vaccine terakhir');
+            }
+
+            // Hapus schedules dulu
+            $vaccine->schedules()->delete();
+
+            // Hapus vaccine
+            $vaccine->delete();
+
+            Log::info("Deleted vaccine {$request->vaccine_id} for patient {$id}");
+
+            return redirect()->back()->with('success', 'Vaccine berhasil dihapus');
+
+        } catch (\Exception $e) {
+            Log::error("Delete vaccine gagal: " . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menghapus vaccine: ' . $e->getMessage());
+        }
     }
 }
