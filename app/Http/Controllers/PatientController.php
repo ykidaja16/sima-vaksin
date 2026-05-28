@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\PatientsExport;
 use App\Models\Patient;
 use App\Models\Vaccine;
+use App\Models\VaccineSchedule;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,7 +30,11 @@ class PatientController extends Controller
         $sortField = $request->input('sort', 'pid');
         $sortDirection = $request->input('direction', 'asc');
 
-        return view('patients.index', compact('patients', 'stats', 'vaccineTypes', 'sortField', 'sortDirection'));
+        $h7ReminderCount = VaccineSchedule::pending()
+            ->whereBetween('tanggal_vaksin', [now()->startOfDay(), now()->addDays(7)->endOfDay()])
+            ->count();
+
+        return view('patients.index', compact('patients', 'stats', 'vaccineTypes', 'sortField', 'sortDirection', 'h7ReminderCount'));
     }
 
 public function show($id)

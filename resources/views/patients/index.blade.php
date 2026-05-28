@@ -64,6 +64,26 @@
         </form>
     </div>
 
+    <!-- H-7 Reminder Notification -->
+    @if($h7ReminderCount > 0)
+    <a href="{{ route('reminders.index') }}" class="block">
+        <div class="bg-amber-50 border border-amber-300 rounded-lg px-4 py-3 flex items-center justify-between hover:bg-amber-100 transition">
+            <div class="flex items-center gap-3">
+                <div class="bg-amber-400 text-white rounded-full w-9 h-9 flex items-center justify-center shrink-0">
+                    <i class="fas fa-bell text-sm"></i>
+                </div>
+                <div>
+                    <p class="font-semibold text-amber-800 text-sm">
+                        Ada <span class="text-amber-900 font-bold">{{ $h7ReminderCount }} pasien</span> yang perlu di-reminder dalam 7 hari ke depan.
+                    </p>
+                    <p class="text-amber-700 text-xs">Klik untuk membuka halaman Reminder H-7</p>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right text-amber-500"></i>
+        </div>
+    </a>
+    @endif
+
     <!-- Stats -->
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div class="bg-white rounded-lg shadow p-4">
