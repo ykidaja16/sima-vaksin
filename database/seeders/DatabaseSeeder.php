@@ -32,6 +32,11 @@ class DatabaseSeeder extends Seeder
                 'deskripsi' => 'Admin Operasional - Mengelola data pasien dan reminder',
                 'is_active' => true,
             ],
+            [
+                'nama_role' => 'Dokter',
+                'deskripsi' => 'Dokter - Mengelola resep pasien',
+                'is_active' => true,
+            ],
         ];
 
         foreach ($roles as $role) {

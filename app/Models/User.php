@@ -43,6 +43,11 @@ class User extends Authenticatable
         return $this->role?->nama_role === 'Admin';
     }
 
+    public function isDokter(): bool
+    {
+        return $this->role?->nama_role === 'Dokter';
+    }
+
     public function isActive(): bool
     {
         return $this->is_active;

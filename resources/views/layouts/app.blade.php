@@ -84,7 +84,7 @@
             <button id="mobile-menu-btn" class="p-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white">
                 <i class="fas fa-bars text-xl"></i>
             </button>
-            <a href="{{ route('patients.index') }}" class="flex items-center space-x-2">
+            <a href="{{ route('dashboard') }}" class="flex items-center space-x-2">
                 <i class="fas fa-syringe text-2xl"></i>
                 <span class="font-bold text-lg">VaksinReminder</span>
             </a>
@@ -99,7 +99,7 @@
     <aside id="sidebar" class="sidebar fixed left-0 top-0 h-full w-64 bg-blue-800 text-white z-50 flex flex-col shadow-xl">
         <!-- Sidebar Header -->
         <div class="p-6 border-b border-blue-700">
-            <a href="{{ route('patients.index') }}" class="flex items-center space-x-3">
+            <a href="{{ route('dashboard') }}" class="flex items-center space-x-3">
                 <div class="bg-white p-2 rounded-lg">
                     <i class="fas fa-syringe text-2xl text-blue-600"></i>
                 </div>
@@ -129,6 +129,15 @@
         <nav class="flex-1 overflow-y-auto sidebar-scroll py-4">
             <ul class="space-y-1 px-3">
                 @auth
+                    {{-- Dashboard: semua role --}}
+                    <li>
+                        <a href="{{ route('dashboard') }}"
+                           class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('dashboard*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
+                            <i class="fas fa-home w-5 text-center"></i>
+                            <span class="font-medium">Dashboard</span>
+                        </a>
+                    </li>
+
                     @if(auth()->user()->isAdmin())
                         {{-- Admin Menu --}}
                         <li>
@@ -175,6 +184,17 @@
                                     <span class="text-sm">Input Manual</span>
                                 </a>
                             </div>
+                        </li>
+                    @endif
+
+                    @if(auth()->user()->isDokter())
+                        {{-- Dokter Menu --}}
+                        <li>
+                            <a href="{{ route('resep.index') }}"
+                               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('resep.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
+                                <i class="fas fa-file-medical w-5 text-center"></i>
+                                <span class="font-medium">Resep Dokter</span>
+                            </a>
                         </li>
                     @endif
 

@@ -11,7 +11,7 @@ class AuthController extends Controller
     public function showLoginForm()
     {
         if (Auth::check()) {
-            return redirect()->route('patients.index');
+            return redirect()->route('dashboard');
         }
         return view('auth.login');
     }
@@ -51,12 +51,7 @@ class AuthController extends Controller
                 'role' => $user->role_name,
             ]);
 
-            // Redirect based on role
-            if ($user->isIT()) {
-                return redirect()->route('users.index');
-            }
-
-            return redirect()->route('patients.index');
+            return redirect()->route('dashboard');
         }
 
         Log::warning('Login failed: Invalid credentials', ['username' => $credentials['username']]);

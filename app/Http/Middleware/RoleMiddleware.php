@@ -55,6 +55,15 @@ class RoleMiddleware
             abort(403, 'Akses ditolak. Hanya user Admin yang dapat mengakses halaman ini.');
         }
 
+        if ($role === 'dokter' && $roleName !== 'Dokter') {
+            Log::warning('User without Dokter role tried to access Dokter route', [
+                'user_id' => $user->id,
+                'username' => $user->username,
+                'route' => $request->route()->getName(),
+            ]);
+            abort(403, 'Akses ditolak. Hanya user Dokter yang dapat mengakses halaman ini.');
+        }
+
         return $next($request);
     }
 }

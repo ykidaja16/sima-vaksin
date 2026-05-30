@@ -2,10 +2,12 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BranchController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ManualInputController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ReminderController;
+use App\Http\Controllers\ResepController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\VaccineTypeController;
 use Illuminate\Support\Facades\Route;
@@ -19,10 +21,9 @@ Route::middleware(['auth'])->group(function () {
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Redirect root to patients list
-    Route::get('/', function () {
-        return redirect()->route('patients.index');
-    });
+    // Dashboard (semua role)
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
     // Admin Routes (Operational)
     Route::middleware(['role:admin'])->group(function () {
@@ -58,6 +59,16 @@ Route::get('/patients/{id}', [PatientController::class, 'show'])->name('patients
         Route::get('/reminders/export/pdf', [ReminderController::class, 'exportPDF'])->name('reminders.export.pdf');
         Route::post('/reminders/{id}/complete', [ReminderController::class, 'complete'])->name('reminders.complete');
         Route::post('/reminders/{id}/sent', [ReminderController::class, 'markReminderSent'])->name('reminders.sent');
+    });
+
+    // Dokter Routes
+    Route::middleware(['role:dokter'])->group(function () {
+        Route::get('/resep', [ResepController::class, 'index'])->name('resep.index');
+        Route::get('/resep/create', [ResepController::class, 'create'])->name('resep.create');
+        Route::post('/resep', [ResepController::class, 'store'])->name('resep.store');
+        Route::get('/resep/{id}', [ResepController::class, 'show'])->name('resep.show');
+        Route::get('/resep/{id}/pdf', [ResepController::class, 'pdf'])->name('resep.pdf');
+        Route::delete('/resep/{id}', [ResepController::class, 'destroy'])->name('resep.destroy');
     });
 
     // IT Routes (Master Data Management)
