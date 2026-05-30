@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Resep;
 use App\Models\ResepObat;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -135,10 +134,7 @@ class ResepController extends Controller
             ->where('user_id', Auth::id())
             ->findOrFail($id);
 
-        $pdf = Pdf::loadView('resep.pdf', compact('resep'))
-            ->setPaper([0, 0, 419.53, 595.28], 'portrait'); // A5 (148mm x 210mm)
-
-        return $pdf->stream("Resep-{$resep->no_resep}.pdf");
+        return view('resep.print', compact('resep'));
     }
 
     public function destroy($id)
