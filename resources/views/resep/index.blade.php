@@ -104,12 +104,81 @@
                 </table>
             </div>
 
-            {{-- Pagination --}}
-            @if($resep->hasPages())
-                <div class="px-4 py-3 border-t border-gray-200">
-                    {{ $resep->links() }}
-                </div>
-            @endif
+            {{-- Pagination Footer --}}
+            <div class="flex items-center justify-between px-5 py-3 border-t border-gray-200 bg-gray-50">
+                <p class="text-sm text-gray-500">
+                    @if($resep->total() > 0)
+                        Menampilkan
+                        <span class="font-semibold text-gray-700">{{ $resep->firstItem() }}</span>–<span class="font-semibold text-gray-700">{{ $resep->lastItem() }}</span>
+                        dari <span class="font-semibold text-gray-700">{{ $resep->total() }}</span> resep
+                    @endif
+                </p>
+
+                @if($resep->hasPages())
+                <nav class="flex items-center gap-1">
+                    {{-- Prev --}}
+                    @if($resep->onFirstPage())
+                        <span class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-sm text-gray-300 cursor-not-allowed select-none">
+                            <i class="fas fa-chevron-left text-xs"></i>
+                        </span>
+                    @else
+                        <a href="{{ $resep->previousPageUrl() }}"
+                           class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all">
+                            <i class="fas fa-chevron-left text-xs"></i>
+                        </a>
+                    @endif
+
+                    {{-- Page Numbers --}}
+                    @php
+                        $current  = $resep->currentPage();
+                        $last     = $resep->lastPage();
+                        $start    = max(1, $current - 2);
+                        $end      = min($last, $current + 2);
+                    @endphp
+
+                    @if($start > 1)
+                        <a href="{{ $resep->url(1) }}"
+                           class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all">1</a>
+                        @if($start > 2)
+                            <span class="px-1.5 py-1.5 text-sm text-gray-400 select-none">…</span>
+                        @endif
+                    @endif
+
+                    @for($p = $start; $p <= $end; $p++)
+                        @if($p == $current)
+                            <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-semibold bg-blue-600 text-white shadow-sm select-none">
+                                {{ $p }}
+                            </span>
+                        @else
+                            <a href="{{ $resep->url($p) }}"
+                               class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all">
+                                {{ $p }}
+                            </a>
+                        @endif
+                    @endfor
+
+                    @if($end < $last)
+                        @if($end < $last - 1)
+                            <span class="px-1.5 py-1.5 text-sm text-gray-400 select-none">…</span>
+                        @endif
+                        <a href="{{ $resep->url($last) }}"
+                           class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all">{{ $last }}</a>
+                    @endif
+
+                    {{-- Next --}}
+                    @if($resep->hasMorePages())
+                        <a href="{{ $resep->nextPageUrl() }}"
+                           class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all">
+                            <i class="fas fa-chevron-right text-xs"></i>
+                        </a>
+                    @else
+                        <span class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-sm text-gray-300 cursor-not-allowed select-none">
+                            <i class="fas fa-chevron-right text-xs"></i>
+                        </span>
+                    @endif
+                </nav>
+                @endif
+            </div>
         @else
             <div class="text-center py-16 text-gray-400">
                 <i class="fas fa-file-medical text-5xl mb-3"></i>
@@ -118,12 +187,5 @@
             </div>
         @endif
     </div>
-
-    {{-- Summary --}}
-    @if($resep->total() > 0)
-        <p class="text-xs text-gray-400 mt-3 text-right">
-            Total {{ $resep->total() }} resep
-        </p>
-    @endif
 </div>
 @endsection
