@@ -57,10 +57,9 @@
     /* ── Kertas resep ── */
     .resep-paper {
         width: 148mm;
-        min-height: 210mm;
         background: #fff;
         box-shadow: 0 4px 24px rgba(0,0,0,.18);
-        padding: 16mm 14mm 14mm 14mm;
+        padding: 12mm 13mm 12mm 13mm;
         position: relative;
     }
 
@@ -106,7 +105,7 @@
     .td-tgl { text-align: right; font-size: 8.5pt; padding-top: 1.5pt; }
 
     /* ── Obat ── */
-    .obat-area { padding: 0 0 0 18pt; min-height: 140pt; }
+    .obat-area { padding: 0 0 0 18pt; }
     .obat-item { margin-bottom: 10pt; }
     .obat-nama { font-size: 10pt; font-weight: bold; }
     .obat-dosis { font-size: 8.8pt; color: #333; padding-left: 8pt; margin-top: 1.5pt; }
@@ -127,7 +126,7 @@
     /* ══ PRINT STYLES ══ */
     @media print {
         @page {
-            size: 148mm 210mm;
+            size: 148mm auto;
             margin: 0;
         }
         body { background: #fff; }
@@ -135,9 +134,8 @@
         .toolbar { display: none !important; }
         .resep-paper {
             width: 148mm;
-            min-height: 210mm;
             box-shadow: none;
-            padding: 14mm 12mm 12mm 12mm;
+            padding: 12mm 13mm 12mm 13mm;
         }
     }
 </style>
@@ -236,13 +234,12 @@
         </div>
 
         {{-- TANDA TANGAN DOKTER --}}
-        <table style="width:100%; border-collapse:collapse; margin-top:30pt;">
+        <table style="width:100%; border-collapse:collapse; margin-top:12pt;">
         <tr>
-            <td style="width:60%; vertical-align:top;"></td>
-            <td style="text-align:center; vertical-align:top; font-size:8pt; line-height:1.5;">
-                Malang, {{ \Carbon\Carbon::parse($resep->tanggal_resep)->locale('id')->translatedFormat('d F Y') }}
-                <div style="height:50pt;"></div>
-                <div style="border-top:1pt solid #111; padding-top:4pt; font-size:8.5pt; font-weight:bold;">
+            <td style="width:58%; vertical-align:top;"></td>
+            <td style="text-align:center; vertical-align:top; font-size:8pt;">
+                <div style="height:48pt;"></div>
+                <div style="border-top:1pt solid #111; padding-top:3pt; font-size:8.5pt; font-weight:bold;">
                     dr. {{ $resep->nama_dokter }}
                 </div>
             </td>
