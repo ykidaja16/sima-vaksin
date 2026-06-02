@@ -15,11 +15,19 @@ class ResepObat extends Model
         'dosis',
         'waktu_minum',
         'makan',
+        'jumlah',
+        'satuan',
+    ];
+
+    protected $casts = [
+        'jumlah' => 'integer',
     ];
 
     protected $attributes = [
         'waktu_minum' => 'Sesuai Dosis',
         'makan'       => '-',
+        'jumlah'      => 0,
+        'satuan'      => '-',
     ];
 
     public function resep(): BelongsTo

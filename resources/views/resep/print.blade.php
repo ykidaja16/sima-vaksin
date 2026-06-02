@@ -224,6 +224,9 @@
         <div class="obat-item">
             <div class="obat-nama">{{ $i + 1 }}. {{ $obat->nama_obat }}</div>
             <div class="obat-dosis">Dosis &nbsp;&nbsp;&nbsp;: {{ $obat->dosis }}</div>
+            @if($obat->jumlah > 0 || $obat->satuan !== '-')
+            <div class="obat-dosis">Jumlah &nbsp;: {{ $obat->jumlah > 0 ? $obat->jumlah : '' }} {{ $obat->satuan !== '-' ? $obat->satuan : '' }}</div>
+            @endif
             <div class="obat-sig">
                 Sig. {{ $obat->waktu_minum === 'Sesuai Dosis' ? 'Sesuai dosis' : $obat->waktu_minum }}
                 @if($obat->makan !== '-') &mdash; {{ $obat->makan }} @endif
@@ -231,6 +234,20 @@
         </div>
         @endforeach
         </div>
+
+        {{-- TANDA TANGAN DOKTER --}}
+        <table style="width:100%; border-collapse:collapse; margin-top:30pt;">
+        <tr>
+            <td style="width:60%; vertical-align:top;"></td>
+            <td style="text-align:center; vertical-align:top; font-size:8pt; line-height:1.5;">
+                Malang, {{ \Carbon\Carbon::parse($resep->tanggal_resep)->locale('id')->translatedFormat('d F Y') }}
+                <div style="height:50pt;"></div>
+                <div style="border-top:1pt solid #111; padding-top:4pt; font-size:8.5pt; font-weight:bold;">
+                    dr. {{ $resep->nama_dokter }}
+                </div>
+            </td>
+        </tr>
+        </table>
 
         {{-- FOOTER PASIEN --}}
         <div class="footer-line">

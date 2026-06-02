@@ -60,6 +60,7 @@
                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Dosis</th>
                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Waktu</th>
                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Makan</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Jumlah</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
@@ -81,6 +82,16 @@
                             </span>
                         @else
                             <span class="text-gray-400 text-xs">-</span>
+                        @endif
+                    </td>
+                    <td class="px-4 py-3 text-sm">
+                        @if($obat->jumlah > 0 || $obat->satuan !== '-')
+                            <span class="font-medium text-gray-700">
+                                {{ $obat->jumlah > 0 ? $obat->jumlah : '' }}
+                                {{ $obat->satuan !== '-' ? $obat->satuan : '' }}
+                            </span>
+                        @else
+                            <span class="text-gray-400">-</span>
                         @endif
                     </td>
                 </tr>

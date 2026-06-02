@@ -3,7 +3,7 @@
 @section('title', 'Buat Resep Baru')
 
 @section('content')
-<div class="max-w-3xl mx-auto">
+<div class="max-w-5xl mx-auto">
     <div class="flex items-center gap-3 mb-6">
         <a href="{{ route('resep.index') }}" class="text-gray-400 hover:text-gray-600 transition-colors">
             <i class="fas fa-arrow-left text-lg"></i>
@@ -110,8 +110,9 @@
 
 @push('scripts')
 <script>
-const waktuList = ['Sesuai Dosis', 'Pagi', 'Siang', 'Sore', 'Malam'];
-const makanList = ['-', 'Sebelum Makan', 'Sesudah Makan'];
+const waktuList  = ['Sesuai Dosis', 'Pagi', 'Siang', 'Sore', 'Malam'];
+const makanList  = ['-', 'Sebelum Makan', 'Sesudah Makan'];
+const satuanList = ['-','tablet','kaplet','kapsul','strip','tube','botol'];
 const oldObat = @json(old('obat', []));
 
 let counter = 0;
@@ -135,43 +136,60 @@ function tambahObat(data = {}) {
         `<option value="${m}" ${(data.makan || '-') === m ? 'selected' : ''}>${m}</option>`
     ).join('');
 
+    const satuanOptions = satuanList.map(s =>
+        `<option value="${s}" ${(data.satuan || '-') === s ? 'selected' : ''}>${s}</option>`
+    ).join('');
+
     const html = `
-        <div class="obat-row flex flex-wrap items-start gap-3 bg-gray-50 rounded-lg p-3 border border-gray-200" data-idx="${idx}">
-            <div class="flex-1 min-w-48">
+        <div class="obat-row flex items-end gap-2 bg-gray-50 rounded-lg p-3 border border-gray-200" data-idx="${idx}">
+            <div class="flex-1 min-w-0">
                 <label class="block text-xs font-medium text-gray-600 mb-1">Nama Obat *</label>
                 <input type="text" name="obat[${idx}][nama_obat]" value="${data.nama_obat || ''}"
                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                        placeholder="Nama obat" required>
             </div>
-            <div>
+            <div class="shrink-0">
                 <label class="block text-xs font-medium text-gray-600 mb-1">Dosis *</label>
-                <div class="flex items-center gap-1.5">
+                <div class="flex items-center gap-1">
                     <input type="number" name="obat[${idx}][dosis_kali]" value="${dosisKali}" min="1" max="99"
-                           class="w-14 border border-gray-300 rounded-lg px-2 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           class="w-12 border border-gray-300 rounded-lg px-1 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
                            required>
-                    <span class="text-gray-500 font-bold text-base select-none">x</span>
+                    <span class="text-gray-500 font-bold text-sm select-none">x</span>
                     <input type="number" name="obat[${idx}][dosis_jumlah]" value="${dosisJumlah}" min="1" max="99"
-                           class="w-14 border border-gray-300 rounded-lg px-2 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           class="w-12 border border-gray-300 rounded-lg px-1 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
                            required>
                 </div>
             </div>
-            <div class="w-36">
+            <div class="shrink-0 w-28">
                 <label class="block text-xs font-medium text-gray-600 mb-1">Waktu Minum</label>
                 <select name="obat[${idx}][waktu_minum]"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        class="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                     ${waktuOptions}
                 </select>
             </div>
-            <div class="w-36">
+            <div class="shrink-0 w-32">
                 <label class="block text-xs font-medium text-gray-600 mb-1">Makan</label>
                 <select name="obat[${idx}][makan]"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        class="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                     ${makanOptions}
                 </select>
             </div>
-            <div class="flex items-end pb-0.5">
+            <div class="shrink-0 w-14">
+                <label class="block text-xs font-medium text-gray-600 mb-1">Jumlah</label>
+                <input type="number" name="obat[${idx}][jumlah]" value="${data.jumlah !== undefined ? data.jumlah : 0}" min="0" max="9999"
+                       class="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       required>
+            </div>
+            <div class="shrink-0 w-24">
+                <label class="block text-xs font-medium text-gray-600 mb-1">Satuan</label>
+                <select name="obat[${idx}][satuan]"
+                        class="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    ${satuanOptions}
+                </select>
+            </div>
+            <div class="shrink-0">
                 <button type="button" onclick="hapusObat(this)"
-                        class="mt-5 p-2 rounded-lg text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors" title="Hapus">
+                        class="p-2 rounded-lg text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors mb-0.5" title="Hapus">
                     <i class="fas fa-trash text-sm"></i>
                 </button>
             </div>

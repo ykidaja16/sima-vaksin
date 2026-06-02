@@ -41,8 +41,7 @@ class DashboardController extends Controller
                 ->where('user_id', $user->id)
                 ->orderByDesc('tanggal_resep')
                 ->orderByDesc('id')
-                ->limit(5)
-                ->get();
+                ->paginate(10);
         }
 
         if ($user->isIT()) {

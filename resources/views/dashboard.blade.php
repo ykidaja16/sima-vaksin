@@ -69,8 +69,9 @@
         {{-- Resep terbaru --}}
         @if($data['resepTerbaru']->count() > 0)
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="px-5 py-4 border-b border-gray-100">
+            <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
                 <h2 class="text-sm font-semibold text-gray-700">Resep Terbaru</h2>
+                <span class="text-xs text-gray-400">{{ $data['resepTerbaru']->total() }} resep</span>
             </div>
             <table class="w-full text-sm">
                 <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
@@ -99,6 +100,73 @@
                     @endforeach
                 </tbody>
             </table>
+
+            {{-- Pagination Footer --}}
+            <div class="flex items-center justify-between px-5 py-3 border-t border-gray-200 bg-gray-50">
+                <p class="text-sm text-gray-500">
+                    Menampilkan
+                    <span class="font-semibold text-gray-700">{{ $data['resepTerbaru']->firstItem() }}</span>–<span class="font-semibold text-gray-700">{{ $data['resepTerbaru']->lastItem() }}</span>
+                    dari <span class="font-semibold text-gray-700">{{ $data['resepTerbaru']->total() }}</span> resep
+                </p>
+
+                @if($data['resepTerbaru']->hasPages())
+                <nav class="flex items-center gap-1">
+                    @if($data['resepTerbaru']->onFirstPage())
+                        <span class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-sm text-gray-300 cursor-not-allowed select-none">
+                            <i class="fas fa-chevron-left text-xs"></i>
+                        </span>
+                    @else
+                        <a href="{{ $data['resepTerbaru']->previousPageUrl() }}"
+                           class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all">
+                            <i class="fas fa-chevron-left text-xs"></i>
+                        </a>
+                    @endif
+
+                    @php
+                        $current = $data['resepTerbaru']->currentPage();
+                        $last    = $data['resepTerbaru']->lastPage();
+                        $start   = max(1, $current - 2);
+                        $end     = min($last, $current + 2);
+                    @endphp
+
+                    @if($start > 1)
+                        <a href="{{ $data['resepTerbaru']->url(1) }}"
+                           class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all">1</a>
+                        @if($start > 2)
+                            <span class="px-1 py-1.5 text-sm text-gray-400 select-none">…</span>
+                        @endif
+                    @endif
+
+                    @for($p = $start; $p <= $end; $p++)
+                        @if($p == $current)
+                            <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-semibold bg-blue-600 text-white shadow-sm select-none">{{ $p }}</span>
+                        @else
+                            <a href="{{ $data['resepTerbaru']->url($p) }}"
+                               class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all">{{ $p }}</a>
+                        @endif
+                    @endfor
+
+                    @if($end < $last)
+                        @if($end < $last - 1)
+                            <span class="px-1 py-1.5 text-sm text-gray-400 select-none">…</span>
+                        @endif
+                        <a href="{{ $data['resepTerbaru']->url($last) }}"
+                           class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all">{{ $last }}</a>
+                    @endif
+
+                    @if($data['resepTerbaru']->hasMorePages())
+                        <a href="{{ $data['resepTerbaru']->nextPageUrl() }}"
+                           class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all">
+                            <i class="fas fa-chevron-right text-xs"></i>
+                        </a>
+                    @else
+                        <span class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-sm text-gray-300 cursor-not-allowed select-none">
+                            <i class="fas fa-chevron-right text-xs"></i>
+                        </span>
+                    @endif
+                </nav>
+                @endif
+            </div>
         </div>
         @endif
     @endif
