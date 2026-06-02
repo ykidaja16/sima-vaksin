@@ -210,9 +210,7 @@
         <table class="r-table">
         <tr>
             <td class="td-r">R/</td>
-            <td class="td-tgl">
-                Malang, {{ \Carbon\Carbon::parse($resep->tanggal_resep)->locale('id')->translatedFormat('d F Y') }}
-            </td>
+            <td class="td-tgl"></td>
         </tr>
         </table>
 
@@ -238,6 +236,7 @@
         <tr>
             <td style="width:58%; vertical-align:top;"></td>
             <td style="text-align:center; vertical-align:top; font-size:8pt;">
+                Malang, {{ \Carbon\Carbon::parse($resep->tanggal_resep)->locale('id')->translatedFormat('d F Y') }}
                 <div style="height:48pt;"></div>
                 <div style="border-top:1pt solid #111; padding-top:3pt; font-size:8.5pt; font-weight:bold;">
                     dr. {{ $resep->nama_dokter }}
