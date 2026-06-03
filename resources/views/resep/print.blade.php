@@ -218,7 +218,9 @@
         <div class="obat-area">
         @foreach($resep->obat as $i => $obat)
         <div class="obat-item">
-            <div class="obat-nama">{{ $i + 1 }}. {{ $obat->nama_obat }}</div>
+            <div class="obat-nama">
+                {{ $i + 1 }}. {{ $obat->nama_obat }}@if($obat->kekuatan) <span style="font-size:9pt; font-weight:normal;">{{ $obat->kekuatan }}{{ $obat->satuan_kekuatan !== '-' ? ' '.$obat->satuan_kekuatan : '' }}</span>@endif
+            </div>
             <div class="obat-dosis">Dosis &nbsp;&nbsp;&nbsp;: {{ $obat->dosis }}</div>
             @if($obat->jumlah > 0 || $obat->satuan !== '-')
             <div class="obat-dosis">Jumlah &nbsp;: {{ $obat->jumlah > 0 ? $obat->jumlah : '' }} {{ $obat->satuan !== '-' ? $obat->satuan : '' }}</div>

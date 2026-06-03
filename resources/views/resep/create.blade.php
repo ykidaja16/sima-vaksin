@@ -110,6 +110,7 @@
 
 @push('scripts')
 <script>
+const satuanKekuatanList = ['-', 'mg', 'ml', '%'];
 const waktuList  = ['Sesuai Dosis', 'Pagi', 'Siang', 'Sore', 'Malam'];
 const makanList  = ['-', 'Sebelum Makan', 'Sesudah Makan'];
 const satuanList = ['-','tablet','kaplet','kapsul','strip','tube','botol'];
@@ -132,6 +133,10 @@ function tambahObat(data = {}) {
         `<option value="${w}" ${(data.waktu_minum || 'Sesuai Dosis') === w ? 'selected' : ''}>${w}</option>`
     ).join('');
 
+    const satuanKekuatanOptions = satuanKekuatanList.map(s =>
+        `<option value="${s}" ${(data.satuan_kekuatan || 'mg') === s ? 'selected' : ''}>${s}</option>`
+    ).join('');
+
     const makanOptions = makanList.map(m =>
         `<option value="${m}" ${(data.makan || '-') === m ? 'selected' : ''}>${m}</option>`
     ).join('');
@@ -147,6 +152,19 @@ function tambahObat(data = {}) {
                 <input type="text" name="obat[${idx}][nama_obat]" value="${data.nama_obat || ''}"
                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                        placeholder="Nama obat" required>
+            </div>
+            <div class="shrink-0 w-16">
+                <label class="block text-xs font-medium text-gray-600 mb-1">Kadar</label>
+                <input type="number" name="obat[${idx}][kekuatan]" value="${data.kekuatan || ''}" min="0" step="any"
+                       class="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="500">
+            </div>
+            <div class="shrink-0 w-16">
+                <label class="block text-xs font-medium text-gray-600 mb-1">Satuan</label>
+                <select name="obat[${idx}][satuan_kekuatan]"
+                        class="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    ${satuanKekuatanOptions}
+                </select>
             </div>
             <div class="shrink-0">
                 <label class="block text-xs font-medium text-gray-600 mb-1">Dosis *</label>

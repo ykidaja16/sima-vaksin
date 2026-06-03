@@ -67,7 +67,14 @@
                 @foreach($resep->obat as $i => $obat)
                 <tr>
                     <td class="px-4 py-3 text-gray-400">{{ $i + 1 }}</td>
-                    <td class="px-4 py-3 font-medium text-gray-800">{{ $obat->nama_obat }}</td>
+                    <td class="px-4 py-3 font-medium text-gray-800">
+                        {{ $obat->nama_obat }}
+                        @if($obat->kekuatan && $obat->satuan_kekuatan !== '-')
+                            <span class="text-gray-500 font-normal text-xs">{{ $obat->kekuatan }} {{ $obat->satuan_kekuatan }}</span>
+                        @elseif($obat->kekuatan)
+                            <span class="text-gray-500 font-normal text-xs">{{ $obat->kekuatan }}</span>
+                        @endif
+                    </td>
                     <td class="px-4 py-3 text-gray-600">{{ $obat->dosis }}</td>
                     <td class="px-4 py-3">
                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium

@@ -12,6 +12,8 @@ class ResepObat extends Model
     protected $fillable = [
         'resep_id',
         'nama_obat',
+        'kekuatan',
+        'satuan_kekuatan',
         'dosis',
         'waktu_minum',
         'makan',
@@ -27,7 +29,8 @@ class ResepObat extends Model
         'waktu_minum' => 'Sesuai Dosis',
         'makan'       => '-',
         'jumlah'      => 0,
-        'satuan'      => '-',
+        'satuan'           => '-',
+        'satuan_kekuatan'  => 'mg',
     ];
 
     public function resep(): BelongsTo
