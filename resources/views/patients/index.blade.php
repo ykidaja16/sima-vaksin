@@ -107,18 +107,27 @@
                     'default' => ['bg' => 'indigo', 'border' => 'indigo-200', 'text' => 'indigo-600', 'textBold' => 'indigo-700', 'icon' => 'syringe']
                 ];
                 $color = $colors[$type->nama_vaksin] ?? $colors['default'];
+                $isActive = request('jenis_vaksin') === $type->nama_vaksin;
             @endphp
-            <div class="bg-{{ $color['bg'] }}-50 rounded-lg shadow p-4 border border-{{ $color['border'] }}">
+            <a href="{{ route('patients.index', array_merge(request()->except(['jenis_vaksin', 'page']), $isActive ? [] : ['jenis_vaksin' => $type->nama_vaksin])) }}"
+               class="block bg-{{ $color['bg'] }}-50 rounded-lg shadow p-4 border {{ $isActive ? 'border-'.$color['text'].' ring-2 ring-'.$color['text'] : 'border-'.$color['border'] }} hover:shadow-md hover:brightness-95 transition cursor-pointer">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm {{ $color['text'] }} font-medium">Total Pasien {{ $type->nama_vaksin }}</p>
                         <p class="text-2xl font-bold {{ $color['textBold'] }}">{{ $total }}</p>
+                        <p class="text-xs {{ $color['text'] }} mt-1 opacity-75">
+                            @if($isActive)
+                                <i class="fas fa-times-circle mr-1"></i>Hapus filter
+                            @else
+                                <i class="fas fa-search mr-1"></i>Lihat detail
+                            @endif
+                        </p>
                     </div>
                     <div class="bg-{{ $color['bg'] }}-200 p-3 rounded-full">
                         <i class="fas fa-{{ $color['icon'] }} {{ $color['text'] }} text-xl"></i>
                     </div>
                 </div>
-            </div>
+            </a>
         @endforeach
     </div>
 
