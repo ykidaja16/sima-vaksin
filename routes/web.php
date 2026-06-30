@@ -7,6 +7,7 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ManualInputController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ReminderController;
+use App\Http\Controllers\ProtokolAbiController;
 use App\Http\Controllers\ResepController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\VaccineTypeController;
@@ -15,6 +16,11 @@ use Illuminate\Support\Facades\Route;
 // Public Routes (Login)
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
+
+Route::get('/temp-pdf', function () {
+    $protokol = App\Models\ProtokolAbi::first();
+    return view('protokol-abi.print', compact('protokol'));
+});
 
 // Protected Routes (Require Authentication)
 Route::middleware(['auth'])->group(function () {
@@ -69,6 +75,13 @@ Route::get('/patients/{id}', [PatientController::class, 'show'])->name('patients
         Route::get('/resep/{id}', [ResepController::class, 'show'])->name('resep.show');
         Route::get('/resep/{id}/pdf', [ResepController::class, 'pdf'])->name('resep.pdf');
         Route::delete('/resep/{id}', [ResepController::class, 'destroy'])->name('resep.destroy');
+
+        Route::get('/protokol-abi', [ProtokolAbiController::class, 'index'])->name('protokol-abi.index');
+        Route::get('/protokol-abi/create', [ProtokolAbiController::class, 'create'])->name('protokol-abi.create');
+        Route::post('/protokol-abi', [ProtokolAbiController::class, 'store'])->name('protokol-abi.store');
+        Route::get('/protokol-abi/{id}', [ProtokolAbiController::class, 'show'])->name('protokol-abi.show');
+        Route::get('/protokol-abi/{id}/pdf', [ProtokolAbiController::class, 'pdf'])->name('protokol-abi.pdf');
+        Route::delete('/protokol-abi/{id}', [ProtokolAbiController::class, 'destroy'])->name('protokol-abi.destroy');
     });
 
     // IT Routes (Master Data Management)
