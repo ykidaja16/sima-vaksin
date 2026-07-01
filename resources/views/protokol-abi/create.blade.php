@@ -62,7 +62,7 @@
             <h2 class="text-base font-semibold text-gray-700 mb-4 flex items-center gap-2">
                 <i class="fas fa-heartbeat text-red-500"></i> Tekanan Darah
             </h2>
-            <p class="text-xs text-gray-500 mb-4">Format: Sistolik / Diastolik (Mean) — contoh: 122 / 83 (92)</p>
+            <p class="text-xs text-gray-500 mb-4">Format: Sistolik / Diastolik — contoh: 122 / 83</p>
 
             @php
                 $lokasi = [
@@ -93,15 +93,6 @@
                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                    placeholder="83">
                         </div>
-                        <span class="text-gray-400 font-bold pb-2">(</span>
-                        <div class="flex-1 min-w-24">
-                            <label class="block text-xs font-medium text-gray-600 mb-1">Mean *</label>
-                            <input type="number" name="{{ $loc['key'] }}_mean" value="{{ old($loc['key'].'_mean') }}"
-                                   min="1" max="300" required
-                                   class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                   placeholder="92">
-                        </div>
-                        <span class="text-gray-400 font-bold pb-2">)</span>
                     </div>
                 </div>
                 @endforeach

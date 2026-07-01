@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Detail Protokol ABI ' . $protokol->no_protokol)
+@section('title', 'Detail Pemeriksaan ABI ' . $protokol->no_protokol)
 
 @section('content')
 <div class="max-w-2xl mx-auto">
@@ -9,7 +9,7 @@
             <i class="fas fa-arrow-left text-lg"></i>
         </a>
         <div class="flex-1">
-            <h1 class="text-2xl font-bold text-gray-800">Detail Protokol ABI</h1>
+            <h1 class="text-2xl font-bold text-gray-800">Detail Pemeriksaan ABI</h1>
             <p class="text-sm text-blue-600 font-mono font-semibold">{{ $protokol->no_protokol }}</p>
         </div>
         <a id="btn-cetak-pdf"
@@ -97,7 +97,7 @@
     <div class="mt-4 flex justify-end">
         <a href="{{ route('protokol-abi.index') }}"
            class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition-colors">
-            <i class="fas fa-list"></i> Kembali ke Daftar Protokol ABI
+            <i class="fas fa-list"></i> Kembali ke Daftar Pemeriksaan ABI
         </a>
     </div>
 </div>

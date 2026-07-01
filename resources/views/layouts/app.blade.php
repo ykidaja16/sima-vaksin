@@ -200,7 +200,7 @@
                             <a href="{{ route('protokol-abi.index') }}"
                                class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('protokol-abi.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
                                 <i class="fas fa-heartbeat w-5 text-center"></i>
-                                <span class="font-medium">Protokol ABI</span>
+                                <span class="font-medium">Pemeriksaan ABI</span>
                             </a>
                         </li>
                     @endif

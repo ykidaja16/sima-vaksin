@@ -1,18 +1,18 @@
 @extends('layouts.app')
 
-@section('title', 'Protokol ABI')
+@section('title', 'Pemeriksaan ABI')
 
 @section('content')
 <div class="max-w-6xl mx-auto">
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800">Protokol ABI</h1>
+            <h1 class="text-2xl font-bold text-gray-800">Pemeriksaan ABI</h1>
             <p class="text-sm text-gray-500 mt-1">dr. {{ auth()->user()->name }}</p>
         </div>
         <a href="{{ route('protokol-abi.create') }}"
            class="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
             <i class="fas fa-plus"></i>
-            <span>Buat Protokol ABI</span>
+            <span>Buat Pemeriksaan ABI</span>
         </a>
     </div>
 
@@ -20,7 +20,7 @@
         <div class="flex flex-wrap gap-3">
             <div class="flex-1 min-w-48">
                 <input type="text" name="search" value="{{ request('search') }}"
-                       placeholder="Cari no. protokol / nama pasien..."
+                       placeholder="Cari no. Pemeriksaan / nama pasien..."
                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div>
@@ -46,7 +46,7 @@
                 <table class="w-full text-sm">
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <th class="px-4 py-3 text-left font-semibold text-gray-600">No. Protokol</th>
+                            <th class="px-4 py-3 text-left font-semibold text-gray-600">No. Pemeriksaan</th>
                             <th class="px-4 py-3 text-left font-semibold text-gray-600">Nama Pasien</th>
                             <th class="px-4 py-3 text-left font-semibold text-gray-600">Umur</th>
                             <th class="px-4 py-3 text-left font-semibold text-gray-600">ABI Left</th>
@@ -112,7 +112,7 @@
                     @if($protokol->total() > 0)
                         Menampilkan
                         <span class="font-semibold text-gray-700">{{ $protokol->firstItem() }}</span>–<span class="font-semibold text-gray-700">{{ $protokol->lastItem() }}</span>
-                        dari <span class="font-semibold text-gray-700">{{ $protokol->total() }}</span> protokol
+                        dari <span class="font-semibold text-gray-700">{{ $protokol->total() }}</span> Pemeriksaan
                     @endif
                 </p>
 
@@ -161,8 +161,8 @@
         @else
             <div class="text-center py-16 text-gray-400">
                 <i class="fas fa-heartbeat text-5xl mb-3"></i>
-                <p class="text-lg font-medium">Belum ada protokol ABI</p>
-                <p class="text-sm mt-1">Klik tombol "Buat Protokol ABI" untuk membuat protokol baru</p>
+                <p class="text-lg font-medium">Belum ada Pemeriksaan ABI</p>
+                <p class="text-sm mt-1">Klik tombol "Buat Pemeriksaan ABI" untuk membuat Pemeriksaan baru</p>
             </div>
         @endif
     </div>

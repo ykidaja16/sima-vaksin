@@ -61,29 +61,29 @@
         position: absolute;
         left: 50%; top: 50%;
         transform: translate(-50%, -50%);
-        width: 160pt;
+        width: 130pt;
     }
     .body-img { display: block; width: 100%; height: auto; }
 
     .bp-block {
         position: absolute; text-align: center;
-        line-height: 1.3; font-size: 8pt;
+        line-height: 1.3; font-size: 9pt;
         min-width: 70pt;
     }
-    .bp-block .lbl-bp  { font-size: 9pt; font-weight: bold; margin-bottom: 1pt; }
-    .bp-block .lbl-unit { font-size: 7pt; color: #666; margin-bottom: 3pt; }
-    .bp-block .bp-val  { font-size: 9.5pt; font-weight: bold; white-space: nowrap; line-height: 1.4; }
+    .bp-block .lbl-bp  { font-size: 10pt; font-weight: bold; margin-bottom: 1pt; }
+    .bp-block .lbl-unit { font-size: 8pt; color: #666; margin-bottom: 3pt; }
+    .bp-block .bp-val  { font-size: 11pt; font-weight: bold; white-space: nowrap; line-height: 1.4; }
 
-    .bp-right-arm   { top: 30%;  left: 2%; }
-    .bp-left-arm    { top: 30%;  right: 2%; }
-    .bp-right-ankle { bottom: 10%; left: 2%; }
-    .bp-left-ankle  { bottom: 10%; right: 2%; }
+    .bp-right-arm   { top: 30%;  left: 8%; }
+    .bp-left-arm    { top: 30%;  right: 8%; }
+    .bp-right-ankle { bottom: 10%; left: 8%; }
+    .bp-left-ankle  { bottom: 10%; right: 8%; }
 
     /* Rumus */
-    .rumus-section { font-size: 8pt; line-height: 1.7; margin: 8pt 0; }
-    .rumus-title { font-weight: bold; margin-bottom: 4pt; }
-    .rumus-formula { margin: 4pt 0; }
-    .rumus-calc { margin: 3pt 0 3pt 12pt; }
+    .rumus-section { font-size: 11pt; line-height: 1.7; margin: 8pt 0; }
+    .rumus-title { font-weight: bold; margin-bottom: 4pt; font-size: 12pt; }
+    .rumus-formula { margin: 4pt 0; font-size: 11pt; }
+    .rumus-calc { margin: 3pt 0 3pt 12pt; font-size: 11pt; }
 
     /* Tabel interpretasi */
     .table-interpretasi { width: 80%; border-collapse: collapse; margin: 10pt auto; font-size: 7.5pt; }
@@ -137,9 +137,6 @@
                 </td>
             </tr>
         </table>
-
-        <div class="judul-abi">ABI</div>
-
         {{-- Diagram tubuh + nilai TD --}}
         <div class="diagram-wrap">
             {{-- Right Arm --}}
@@ -148,7 +145,7 @@
                 <div class="lbl-unit">mmHg</div>
                 <div class="bp-val">
                     <span style="color:#e53935;">{{ $protokol->right_arm_sistolik }}</span>
-                    / {{ $protokol->right_arm_diastolik }} ({{ $protokol->right_arm_mean }})
+                    / {{ $protokol->right_arm_diastolik }}
                 </div>
             </div>
             {{-- Left Arm --}}
@@ -156,7 +153,7 @@
                 <div class="lbl-bp">BP</div>
                 <div class="lbl-unit">mmHg</div>
                 <div class="bp-val">
-                    {{ $protokol->left_arm_sistolik }} / {{ $protokol->left_arm_diastolik }} ({{ $protokol->left_arm_mean }})
+                    {{ $protokol->left_arm_sistolik }} / {{ $protokol->left_arm_diastolik }}
                 </div>
             </div>
             {{-- Right Ankle --}}
@@ -165,7 +162,7 @@
                 <div class="lbl-unit">mmHg</div>
                 <div class="bp-val">
                     <span style="color:#2e7d32;">{{ $protokol->right_ankle_sistolik }}</span>
-                    / {{ $protokol->right_ankle_diastolik }} ({{ $protokol->right_ankle_mean }})
+                    / {{ $protokol->right_ankle_diastolik }}
                 </div>
             </div>
             {{-- Left Ankle --}}
@@ -174,7 +171,7 @@
                 <div class="lbl-unit">mmHg</div>
                 <div class="bp-val">
                     <span style="color:#2e7d32;">{{ $protokol->left_ankle_sistolik }}</span>
-                    / {{ $protokol->left_ankle_diastolik }} ({{ $protokol->left_ankle_mean }})
+                    / {{ $protokol->left_ankle_diastolik }}
                 </div>
             </div>
 
