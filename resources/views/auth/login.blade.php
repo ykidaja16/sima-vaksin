@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sistem Reminder Vaksin</title>
+    <title>Login - Sistem Klinik SIMA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/png" href="{{ asset('images/medical.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -15,7 +15,7 @@
                 <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-syringe text-3xl text-blue-600"></i>
                 </div>
-                <h1 class="text-2xl font-bold text-gray-900">Sistem Reminder Vaksin</h1>
+                <h1 class="text-2xl font-bold text-gray-900">Sistem Klinik SIMA</h1>
                 <p class="text-gray-600 mt-2">Silakan login untuk melanjutkan</p>
             </div>
 
@@ -59,7 +59,7 @@
             </form>
 
             <div class="mt-6 text-center text-sm text-gray-600">
-                <p>&copy; {{ date('Y') }} Sistem Reminder Vaksin</p>
+                <p>&copy; {{ date('Y') }} Sistem Klinik SIMA</p>
             </div>
         </div>
     </div>

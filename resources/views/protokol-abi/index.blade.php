@@ -128,22 +128,44 @@
                         </a>
                     @endif
 
+                    {{-- Page Numbers --}}
                     @php
-                        $current = $protokol->currentPage();
-                        $last    = $protokol->lastPage();
-                        $start   = max(1, $current - 2);
-                        $end     = min($last, $current + 2);
+                        $current  = $protokol->currentPage();
+                        $last     = $protokol->lastPage();
+                        $start    = max(1, $current - 2);
+                        $end      = min($last, $current + 2);
                     @endphp
+
+                    @if($start > 1)
+                        <a href="{{ $protokol->url(1) }}"
+                           class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all">1</a>
+                        @if($start > 2)
+                            <span class="px-1.5 py-1.5 text-sm text-gray-400 select-none">…</span>
+                        @endif
+                    @endif
 
                     @for($p = $start; $p <= $end; $p++)
                         @if($p == $current)
-                            <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-semibold bg-blue-600 text-white shadow-sm select-none">{{ $p }}</span>
+                            <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-semibold bg-blue-600 text-white shadow-sm select-none">
+                                {{ $p }}
+                            </span>
                         @else
                             <a href="{{ $protokol->url($p) }}"
-                               class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all">{{ $p }}</a>
+                               class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all">
+                                {{ $p }}
+                            </a>
                         @endif
                     @endfor
 
+                    @if($end < $last)
+                        @if($end < $last - 1)
+                            <span class="px-1.5 py-1.5 text-sm text-gray-400 select-none">…</span>
+                        @endif
+                        <a href="{{ $protokol->url($last) }}"
+                           class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all">{{ $last }}</a>
+                    @endif
+
+                    {{-- Next --}}
                     @if($protokol->hasMorePages())
                         <a href="{{ $protokol->nextPageUrl() }}"
                            class="inline-flex items-center px-2.5 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all">

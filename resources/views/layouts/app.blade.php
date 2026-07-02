@@ -91,7 +91,7 @@
             </button>
             <a href="{{ route('dashboard') }}" class="flex items-center space-x-2">
                 <i class="fas fa-syringe text-2xl"></i>
-                <span class="font-bold text-lg">VaksinReminder</span>
+                <span class="font-bold text-lg">Klinik SIMA</span>
             </a>
             <div class="w-10"></div>
         </div>
@@ -111,8 +111,8 @@
                     <i class="fas fa-syringe text-2xl text-blue-600"></i>
                 </div>
                 <div>
-                    <span class="font-bold text-xl block">Vaksin</span>
-                    <span class="text-sm text-blue-200">Reminder</span>
+                    <span class="font-bold text-xl block">Klinik</span>
+                    <span class="text-sm text-blue-200">SIMA</span>
                 </div>
             </a>
         </div>
@@ -255,7 +255,7 @@
                 </form>
             @endauth
             <div class="text-center text-xs text-blue-400 pt-2">
-                <p>&copy; {{ date('Y') }} Sistem Reminder Vaksin</p>
+                <p>&copy; {{ date('Y') }} Sistem Klinik SIMA</p>
             </div>
         </div>
     </aside>
@@ -321,7 +321,7 @@
         <footer class="bg-white border-t border-gray-200 mt-auto">
             <div class="px-4 sm:px-6 lg:px-8 py-4">
                 <div class="text-center text-sm text-gray-600">
-                    &copy; {{ date('Y') }} Sistem Reminder Vaksin. All rights reserved.
+                    &copy; {{ date('Y') }} Sistem Klinik SIMA. All rights reserved.
                 </div>
             </div>
         </footer>

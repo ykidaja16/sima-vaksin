@@ -61,6 +61,7 @@
                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Waktu</th>
                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Makan</th>
                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Jumlah</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Keterangan</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
@@ -100,6 +101,9 @@
                         @else
                             <span class="text-gray-400">-</span>
                         @endif
+                    </td>
+                    <td class="px-4 py-3 text-gray-600">
+                        {{ $obat->keterangan ?: '-' }}
                     </td>
                 </tr>
                 @endforeach

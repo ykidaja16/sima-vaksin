@@ -75,7 +75,7 @@
     }
     .td-addr {
         text-align: right; font-size: 7.6pt;
-        line-height: 1.65; color: #333; width: 38%;
+        line-height: 1.25; color: #333; width: 45%;
     }
     .kop-line { border-top: 2pt solid #111; }
 
@@ -88,7 +88,7 @@
         line-height: 1.7; white-space: nowrap;
     }
     .jadwal-inner { border-collapse: collapse; margin-top: 1pt; }
-    .jadwal-inner td { font-size: 7.8pt; line-height: 1.05; padding-right: 4pt; white-space: nowrap; }
+    .jadwal-inner td { font-size: 7.8pt; line-height: 1.1; padding: 1pt 4pt 1pt 0; white-space: nowrap; }
     .jadwal-line { border-top: 1.5pt solid #111; }
 
     /* ── Judul ── */
@@ -110,6 +110,7 @@
     .obat-nama { font-size: 10pt; font-weight: bold; }
     .obat-dosis { font-size: 8.8pt; color: #333; padding-left: 8pt; margin-top: 1.5pt; }
     .obat-sig   { font-size: 8.5pt; font-style: italic; color: #555; padding-left: 8pt; }
+    .obat-ket   { font-size: 8.5pt; color: #444; padding-left: 8pt; margin-top: 1.5pt; }
 
     /* ── Footer ── */
     .footer-line { border-top: 1.5pt solid #111; margin-top: 12pt; padding-top: 6pt; }
@@ -126,7 +127,7 @@
     /* ══ PRINT STYLES ══ */
     @media print {
         @page {
-            size: 148mm auto;
+            size: A5 portrait;
             margin: 0;
         }
         body { background: #fff; }
@@ -229,6 +230,9 @@
                 Sig. {{ $obat->waktu_minum === 'Sesuai Dosis' ? 'Sesuai dosis' : $obat->waktu_minum }}
                 @if($obat->makan !== '-') &mdash; {{ $obat->makan }} @endif
             </div>
+            @if(!empty($obat->keterangan))
+            <div class="obat-ket">Ket: {{ $obat->keterangan }}</div>
+            @endif
         </div>
         @endforeach
         </div>
