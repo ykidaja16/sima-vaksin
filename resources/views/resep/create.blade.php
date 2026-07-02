@@ -205,6 +205,12 @@ function tambahObat(data = {}) {
                     ${satuanOptions}
                 </select>
             </div>
+            <div class="flex-1 min-w-0">
+                <label class="block text-xs font-medium text-gray-600 mb-1">Keterangan</label>
+                <input type="text" name="obat[${idx}][keterangan]" value="${data.keterangan || ''}"
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="Keterangan (Opsional)">
+            </div>
             <div class="shrink-0">
                 <button type="button" onclick="hapusObat(this)"
                         class="p-2 rounded-lg text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors mb-0.5" title="Hapus">

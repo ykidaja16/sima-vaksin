@@ -25,7 +25,7 @@
         <dl class="grid grid-cols-2 gap-4 text-sm">
             <div>
                 <dt class="text-gray-500">Dokter</dt>
-                <dd class="font-semibold text-gray-800 mt-0.5">dr. {{ $protokol->nama_dokter }}</dd>
+                <dd class="font-semibold text-gray-800 mt-0.5">{{ Auth::user()->isDokter() ? 'dr. ' : '' }}{{ $protokol->nama_dokter }}</dd>
             </div>
             <div>
                 <dt class="text-gray-500">Tanggal Pemeriksaan</dt>

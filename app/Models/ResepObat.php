@@ -19,6 +19,7 @@ class ResepObat extends Model
         'makan',
         'jumlah',
         'satuan',
+        'keterangan',
     ];
 
     protected $casts = [

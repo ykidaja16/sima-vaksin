@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,66 +11,68 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        [x-cloak] { display: none !important; }
-        
+        [x-cloak] {
+            display: none !important;
+        }
+
         /* Sidebar Styles */
         .sidebar {
             transition: transform 0.3s ease-in-out;
         }
-        
+
         .sidebar-overlay {
             transition: opacity 0.3s ease-in-out;
         }
-        
+
         /* Custom scrollbar for sidebar */
         .sidebar-scroll::-webkit-scrollbar {
             width: 6px;
         }
-        
+
         .sidebar-scroll::-webkit-scrollbar-track {
             background: #1e40af;
         }
-        
+
         .sidebar-scroll::-webkit-scrollbar-thumb {
             background: #3b82f6;
             border-radius: 3px;
         }
-        
+
         /* Main content transition */
         .main-content {
             transition: margin-left 0.3s ease-in-out;
         }
-        
+
         /* Mobile menu animation */
         @media (max-width: 1023px) {
             .sidebar {
                 transform: translateX(-100%);
             }
-            
+
             .sidebar.active {
                 transform: translateX(0);
             }
-            
+
             .sidebar-overlay {
                 opacity: 0;
                 pointer-events: none;
             }
-            
+
             .sidebar-overlay.active {
                 opacity: 1;
                 pointer-events: auto;
             }
         }
-        
+
         @media (min-width: 1024px) {
             .sidebar {
                 transform: translateX(0) !important;
             }
-            
+
             .sidebar-overlay {
                 display: none !important;
             }
-            
+
             .main-content {
                 margin-left: 16rem;
             }
@@ -77,11 +80,13 @@
     </style>
     @stack('styles')
 </head>
+
 <body class="bg-gray-100 min-h-screen">
     <!-- Mobile Header -->
     <div class="lg:hidden bg-blue-600 text-white shadow-lg fixed top-0 left-0 right-0 z-40 h-16">
         <div class="flex items-center justify-between h-full px-4">
-            <button id="mobile-menu-btn" class="p-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white">
+            <button id="mobile-menu-btn"
+                class="p-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white">
                 <i class="fas fa-bars text-xl"></i>
             </button>
             <a href="{{ route('dashboard') }}" class="flex items-center space-x-2">
@@ -93,10 +98,12 @@
     </div>
 
     <!-- Sidebar Overlay (Mobile Only) -->
-    <div id="sidebar-overlay" class="sidebar-overlay fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onclick="toggleSidebar()"></div>
+    <div id="sidebar-overlay" class="sidebar-overlay fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+        onclick="toggleSidebar()"></div>
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar fixed left-0 top-0 h-full w-64 bg-blue-800 text-white z-50 flex flex-col shadow-xl">
+    <aside id="sidebar"
+        class="sidebar fixed left-0 top-0 h-full w-64 bg-blue-800 text-white z-50 flex flex-col shadow-xl">
         <!-- Sidebar Header -->
         <div class="p-6 border-b border-blue-700">
             <a href="{{ route('dashboard') }}" class="flex items-center space-x-3">
@@ -112,17 +119,17 @@
 
         <!-- User Info -->
         @auth
-        <div class="px-4 py-3 border-b border-blue-700 bg-blue-900">
-            <div class="flex items-center space-x-3">
-                <div class="bg-blue-600 p-2 rounded-full">
-                    <i class="fas fa-user text-sm"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-white truncate">{{ auth()->user()->name }}</p>
-                    <p class="text-xs text-blue-300 uppercase">{{ auth()->user()->role_name }}</p>
+            <div class="px-4 py-3 border-b border-blue-700 bg-blue-900">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-600 p-2 rounded-full">
+                        <i class="fas fa-user text-sm"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-white truncate">{{ auth()->user()->name }}</p>
+                        <p class="text-xs text-blue-300 uppercase">{{ auth()->user()->role_name }}</p>
+                    </div>
                 </div>
             </div>
-        </div>
         @endauth
 
         <!-- Sidebar Navigation -->
@@ -132,7 +139,7 @@
                     {{-- Dashboard: semua role --}}
                     <li>
                         <a href="{{ route('dashboard') }}"
-                           class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('dashboard*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
+                            class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('dashboard*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
                             <i class="fas fa-home w-5 text-center"></i>
                             <span class="font-medium">Dashboard</span>
                         </a>
@@ -141,45 +148,44 @@
                     @if(auth()->user()->isAdmin())
                         {{-- Admin Menu --}}
                         <li>
-                            <a href="{{ route('patients.index') }}" 
-                               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('patients.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
+                            <a href="{{ route('patients.index') }}"
+                                class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('patients.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
                                 <i class="fas fa-users w-5 text-center"></i>
                                 <span class="font-medium">Data Pasien</span>
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('reminders.index') }}" 
-                               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('reminders.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
+                            <a href="{{ route('reminders.index') }}"
+                                class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('reminders.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
                                 <i class="fas fa-bell w-5 text-center"></i>
                                 <span class="font-medium">Reminder H-7</span>
                             </a>
                         </li>
-                        <li class="relative" x-data="{ open: {{ request()->routeIs('import.*') || request()->routeIs('manual-input.*') ? 'true' : 'false' }} }">
-                            <button @click="open = !open" 
-                                    class="w-full flex items-center justify-between space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('import.*') || request()->routeIs('manual-input.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
+                        <li class="relative"
+                            x-data="{ open: {{ request()->routeIs('import.*') || request()->routeIs('manual-input.*') ? 'true' : 'false' }} }">
+                            <button @click="open = !open"
+                                class="w-full flex items-center justify-between space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('import.*') || request()->routeIs('manual-input.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
                                 <div class="flex items-center space-x-3">
                                     <i class="fas fa-keyboard w-5 text-center"></i>
                                     <span class="font-medium">Input Data</span>
                                 </div>
                                 <i class="fas fa-chevron-down text-xs transition-transform" :class="{ 'rotate-180': open }"></i>
                             </button>
-                            
+
                             <!-- Submenu -->
-                            <div x-show="open" 
-                                 x-transition:enter="transition ease-out duration-200"
-                                 x-transition:enter-start="opacity-0 transform -translate-y-2"
-                                 x-transition:enter-end="opacity-100 transform translate-y-0"
-                                 x-transition:leave="transition ease-in duration-150"
-                                 x-transition:leave-start="opacity-100 transform translate-y-0"
-                                 x-transition:leave-end="opacity-0 transform -translate-y-2"
-                                 class="mt-1 space-y-1">
-                                <a href="{{ route('import.excel') }}" 
-                                   class="flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('import.*') && !request()->routeIs('manual-input.*') ? 'bg-blue-500 text-white' : 'text-blue-200 hover:bg-blue-700 hover:text-white' }} pl-12">
+                            <div x-show="open" x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                x-transition:enter-end="opacity-100 transform translate-y-0"
+                                x-transition:leave="transition ease-in duration-150"
+                                x-transition:leave-start="opacity-100 transform translate-y-0"
+                                x-transition:leave-end="opacity-0 transform -translate-y-2" class="mt-1 space-y-1">
+                                <a href="{{ route('import.excel') }}"
+                                    class="flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('import.*') && !request()->routeIs('manual-input.*') ? 'bg-blue-500 text-white' : 'text-blue-200 hover:bg-blue-700 hover:text-white' }} pl-12">
                                     <i class="fas fa-file-excel w-5 text-center"></i>
                                     <span class="text-sm">Import Excel</span>
                                 </a>
-                                <a href="{{ route('manual-input.index') }}" 
-                                   class="flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('manual-input.*') ? 'bg-blue-500 text-white' : 'text-blue-200 hover:bg-blue-700 hover:text-white' }} pl-12">
+                                <a href="{{ route('manual-input.index') }}"
+                                    class="flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('manual-input.*') ? 'bg-blue-500 text-white' : 'text-blue-200 hover:bg-blue-700 hover:text-white' }} pl-12">
                                     <i class="fas fa-edit w-5 text-center"></i>
                                     <span class="text-sm">Input Manual</span>
                                 </a>
@@ -191,42 +197,42 @@
                         {{-- Dokter Menu --}}
                         <li>
                             <a href="{{ route('resep.index') }}"
-                               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('resep.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
+                                class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('resep.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
                                 <i class="fas fa-file-medical w-5 text-center"></i>
                                 <span class="font-medium">Resep Dokter</span>
                             </a>
                         </li>
-                        <li>
-                            <a href="{{ route('protokol-abi.index') }}"
-                               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('protokol-abi.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
-                                <i class="fas fa-heartbeat w-5 text-center"></i>
-                                <span class="font-medium">Pemeriksaan ABI</span>
-                            </a>
-                        </li>
-                    @endif
 
+                    @endif
+                    <li>
+                        <a href="{{ route('protokol-abi.index') }}"
+                            class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('protokol-abi.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
+                            <i class="fas fa-heartbeat w-5 text-center"></i>
+                            <span class="font-medium">Pemeriksaan ABI</span>
+                        </a>
+                    </li>
                     @if(auth()->user()->isIT())
                         {{-- IT Menu --}}
                         <li class="pt-4 pb-2">
                             <span class="px-4 text-xs font-semibold text-blue-400 uppercase tracking-wider">Master Data</span>
                         </li>
                         <li>
-                            <a href="{{ route('users.index') }}" 
-                               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('users.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
+                            <a href="{{ route('users.index') }}"
+                                class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('users.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
                                 <i class="fas fa-user-cog w-5 text-center"></i>
                                 <span class="font-medium">Manajemen User</span>
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('vaccine-types.index') }}" 
-                               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('vaccine-types.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
+                            <a href="{{ route('vaccine-types.index') }}"
+                                class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('vaccine-types.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
                                 <i class="fas fa-syringe w-5 text-center"></i>
                                 <span class="font-medium">Manajemen Vaksin</span>
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('branches.index') }}" 
-                               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('branches.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
+                            <a href="{{ route('branches.index') }}"
+                                class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('branches.*') ? 'bg-blue-600 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
                                 <i class="fas fa-hospital w-5 text-center"></i>
                                 <span class="font-medium">Manajemen Cabang</span>
                             </a>
@@ -241,7 +247,8 @@
             @auth
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
-                    <button type="submit" class="w-full flex items-center justify-center space-x-2 px-4 py-2 rounded-lg text-blue-100 hover:bg-blue-700 hover:text-white transition-colors">
+                    <button type="submit"
+                        class="w-full flex items-center justify-center space-x-2 px-4 py-2 rounded-lg text-blue-100 hover:bg-blue-700 hover:text-white transition-colors">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Logout</span>
                     </button>
@@ -258,9 +265,11 @@
         <!-- Flash Messages -->
         <div class="px-4 sm:px-6 lg:px-8 mt-4">
             @if(session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"
+                    role="alert">
                     <span class="block sm:inline">{{ session('success') }}</span>
-                    <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.remove()">
+                    <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3"
+                        onclick="this.parentElement.remove()">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -269,16 +278,19 @@
             @if(session('error'))
                 <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
                     <span class="block sm:inline">{{ session('error') }}</span>
-                    <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.remove()">
+                    <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3"
+                        onclick="this.parentElement.remove()">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
             @endif
 
             @if(session('warning'))
-                <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mb-4"
+                    role="alert">
                     <span class="block sm:inline">{{ session('warning') }}</span>
-                    <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.remove()">
+                    <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3"
+                        onclick="this.parentElement.remove()">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -292,7 +304,8 @@
                             <li>{{ $error }}</li>
                         @endforeach
                     </ul>
-                    <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.remove()">
+                    <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3"
+                        onclick="this.parentElement.remove()">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -319,20 +332,20 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
-            
+
             sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
         }
 
         // Mobile menu button click
-        document.getElementById('mobile-menu-btn').addEventListener('click', function(e) {
+        document.getElementById('mobile-menu-btn').addEventListener('click', function (e) {
             e.stopPropagation();
             toggleSidebar();
         });
 
         // Close sidebar when clicking on a link (mobile only)
         document.querySelectorAll('#sidebar a').forEach(link => {
-            link.addEventListener('click', function() {
+            link.addEventListener('click', function () {
                 if (window.innerWidth < 1024) {
                     toggleSidebar();
                 }
@@ -340,7 +353,7 @@
         });
 
         // Handle window resize
-        window.addEventListener('resize', function() {
+        window.addEventListener('resize', function () {
             if (window.innerWidth >= 1024) {
                 const sidebar = document.getElementById('sidebar');
                 const overlay = document.getElementById('sidebar-overlay');
@@ -352,4 +365,5 @@
 
     @stack('scripts')
 </body>
+
 </html>

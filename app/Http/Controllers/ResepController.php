@@ -59,6 +59,7 @@ class ResepController extends Controller
             'obat.*.makan'        => 'required|in:Sebelum Makan,Sesudah Makan,-',
             'obat.*.jumlah'       => 'required|integer|min:0|max:9999',
             'obat.*.satuan'       => 'required|in:tablet,kaplet,kapsul,strip,tube,botol,-',
+            'obat.*.keterangan'   => 'nullable|string',
         ], [
             'nama_pasien.required'          => 'Nama pasien wajib diisi',
             'umur.required'                 => 'Umur wajib diisi',
@@ -101,6 +102,7 @@ class ResepController extends Controller
                     'makan'       => $o['makan'],
                     'jumlah'      => $o['jumlah'],
                     'satuan'      => $o['satuan'],
+                    'keterangan'  => $o['keterangan'] ?? null,
                     'created_at'  => now(),
                     'updated_at'  => now(),
                 ])->toArray();

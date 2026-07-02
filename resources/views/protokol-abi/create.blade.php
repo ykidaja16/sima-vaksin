@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Buat Protokol ABI')
+@section('title', 'Buat Pemeriksaan ABI')
 
 @section('content')
 <div class="max-w-5xl mx-auto">
@@ -9,8 +9,7 @@
             <i class="fas fa-arrow-left text-lg"></i>
         </a>
         <div>
-            <h1 class="text-2xl font-bold text-gray-800">Buat Protokol ABI</h1>
-            <p class="text-sm text-gray-500 mt-0.5">dr. {{ $namaDokter }}</p>
+            <h1 class="text-2xl font-bold text-gray-800">Buat Pemeriksaan ABI</h1>
         </div>
     </div>
 

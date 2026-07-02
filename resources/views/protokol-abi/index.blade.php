@@ -7,7 +7,6 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-2xl font-bold text-gray-800">Pemeriksaan ABI</h1>
-            <p class="text-sm text-gray-500 mt-1">dr. {{ auth()->user()->name }}</p>
         </div>
         <a href="{{ route('protokol-abi.create') }}"
            class="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
