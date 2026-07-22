@@ -37,6 +37,13 @@
         width: 148mm;
     }
     .toolbar span { font-size: 13px; font-weight: 600; flex: 1; }
+    .paper-select {
+        border: none; border-radius: 6px;
+        padding: 5px 8px; font-size: 12px; font-weight: 600;
+        background: #1e3a8a; color: #fff;
+        cursor: pointer;
+    }
+    .paper-select option { background: #1e40af; color: #fff; }
     .btn-print {
         display: inline-flex; align-items: center; gap: 6px;
         background: #fff; color: #1e40af;
@@ -173,8 +180,14 @@
     {{-- Toolbar (hanya tampil di layar) --}}
     <div class="toolbar">
         <span>&#128196; Resep {{ $resep->no_resep }} &mdash; {{ $resep->nama_pasien }}</span>
+        <select id="paperSizeSelect" class="paper-select" title="Ukuran Kertas">
+            <option value="A5 portrait">&#128203; A5</option>
+            <option value="A4 portrait">&#128203; A4</option>
+            <option value="letter portrait">&#128203; Letter</option>
+            <option value="legal portrait">&#128203; Legal</option>
+        </select>
         <a href="{{ route('resep.show', $resep->id) }}" class="btn-back">&#8592; Kembali</a>
-        <button class="btn-print" onclick="window.print()">&#128438; Cetak / Simpan PDF</button>
+        <button class="btn-print" onclick="cetakResep()">&#128438; Cetak / Simpan PDF</button>
     </div>
 
     {{-- Kertas Resep --}}
@@ -303,11 +316,24 @@
 
 <input type="hidden" id="autoPrintFlag" value="{{ session('auto_print') ? '1' : '0' }}">
 
+{{-- Style dinamis untuk @page size (diisi oleh JS sebelum print) --}}
+<style id="dynamicPageStyle"></style>
+
 <script>
+    // Inject @page size sesuai pilihan dropdown, lalu print
+    function cetakResep() {
+        var size = document.getElementById('paperSizeSelect')
+                    ? document.getElementById('paperSizeSelect').value
+                    : 'A5 portrait';
+        document.getElementById('dynamicPageStyle').textContent =
+            '@media print { @page { size: ' + size + '; margin: 12mm 13mm; } }';
+        setTimeout(function() { window.print(); }, 80);
+    }
+
     // Auto print saat halaman dimuat (dari redirect store dengan auto_print)
     if (document.getElementById('autoPrintFlag').value === '1') {
         window.addEventListener('load', function() {
-            setTimeout(function() { window.print(); }, 400);
+            setTimeout(function() { cetakResep(); }, 400);
         });
     }
 </script>
