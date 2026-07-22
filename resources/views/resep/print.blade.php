@@ -149,21 +149,17 @@
 
     /* ══ PRINT STYLES ══ */
     @media print {
-        body { background: #fff; }
+        body { background: #fff; margin: 0; }
         .page-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
+            display: block;
             padding: 0;
             background: #fff;
             min-height: unset;
         }
         .toolbar { display: none !important; }
         .resep-paper {
-            width: 148mm;
-            max-width: 148mm;
-            margin: 0 auto;
+            width: 100%;
+            margin: 0;
             box-shadow: none;
             padding: 0;
             overflow: hidden;
