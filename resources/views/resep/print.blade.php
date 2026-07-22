@@ -127,7 +127,7 @@
     /* ══ PRINT STYLES ══ */
     @media print {
         @page {
-            /* Margin @page otomatis menyesuaikan semua ukuran kertas (A5/A4/Letter/Legal) */
+            /* Margin otomatis menyesuaikan semua ukuran kertas (A5/A4/Letter/Legal) */
             margin: 12mm 13mm;
         }
         body { background: #fff; }
@@ -141,8 +141,27 @@
         .resep-paper {
             width: 100%;
             box-shadow: none;
-            /* Padding 0 — margin halaman ditangani oleh @page margin di atas */
             padding: 0;
+        }
+        /* Cegah overflow kanan: paksa semua teks nowrap bisa wrap saat print */
+        .td-jadwal-right {
+            white-space: normal !important;
+            word-break: break-word;
+        }
+        .jadwal-inner td {
+            white-space: normal !important;
+            word-break: break-word;
+        }
+        .td-addr {
+            word-break: break-word;
+            white-space: normal !important;
+        }
+        /* Pastikan tabel tidak overflow */
+        table {
+            table-layout: fixed;
+        }
+        .kop-table, .jadwal-table, .footer-table {
+            table-layout: auto;
         }
     }
 </style>
