@@ -169,12 +169,12 @@ function tambahObat(data = {}) {
             <div class="shrink-0">
                 <label class="block text-xs font-medium text-gray-600 mb-1">Dosis *</label>
                 <div class="flex items-center gap-1">
-                    <input type="number" name="obat[${idx}][dosis_kali]" value="${dosisKali}" min="1" max="99"
-                           class="w-12 border border-gray-300 rounded-lg px-1 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    <input type="text" name="obat[${idx}][dosis_kali]" value="${dosisKali}"
+                           class="w-16 border border-gray-300 rounded-lg px-1 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
                            required>
                     <span class="text-gray-500 font-bold text-sm select-none">x</span>
-                    <input type="number" name="obat[${idx}][dosis_jumlah]" value="${dosisJumlah}" min="1" max="99"
-                           class="w-12 border border-gray-300 rounded-lg px-1 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    <input type="text" name="obat[${idx}][dosis_jumlah]" value="${dosisJumlah}"
+                           class="w-16 border border-gray-300 rounded-lg px-1 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
                            required>
                 </div>
             </div>
