@@ -1,13 +1,14 @@
 @php
     // Ukuran kertas dari URL param ?p= (default: A5)
     $paperMap = [
-        'A5' => ['css' => 'A5 portrait',      'label' => 'A5'],
-        'A4' => ['css' => 'A4 portrait',      'label' => 'A4'],
-        'L'  => ['css' => 'letter portrait',  'label' => 'Letter'],
-        'LG' => ['css' => 'legal portrait',   'label' => 'Legal'],
+        'A5' => ['css' => 'A5 portrait',      'width' => '148mm', 'label' => 'A5'],
+        'A4' => ['css' => 'A4 portrait',      'width' => '210mm', 'label' => 'A4'],
+        'L'  => ['css' => 'letter portrait',  'width' => '216mm', 'label' => 'Letter'],
+        'LG' => ['css' => 'legal portrait',   'width' => '216mm', 'label' => 'Legal'],
     ];
     $pKey     = array_key_exists(request('p', 'A5'), $paperMap) ? request('p', 'A5') : 'A5';
     $pageSize = $paperMap[$pKey]['css'];
+    $paperWidth = $paperMap[$pKey]['width'];
     $baseUrl  = url()->current();
 @endphp
 <!DOCTYPE html>
@@ -158,10 +159,10 @@
         }
         .toolbar { display: none !important; }
         .resep-paper {
-            width: 100%;
-            margin: 0;
-            box-shadow: none;
-            padding: 0;
+            margin: 0 !important;
+            box-shadow: none !important;
+            padding: 12mm 13mm !important;
+            box-sizing: border-box !important;
             overflow: hidden;
         }
         /* Paksa teks nowrap bisa wrap — cegah overflow kanan */
@@ -175,8 +176,8 @@
         table { max-width: 100%; }
     }
 </style>
-{{-- @page size: ditulis sebagai string PHP agar IDE tidak parse sebagai CSS --}}
-{!! '<style>@page{size:' . $pageSize . ';margin:12mm 13mm;}</style>' !!}
+{{-- @page size dan lebar kertas ditulis sebagai string PHP agar IDE tidak parse sebagai CSS --}}
+{!! '<style>@page{size:' . $pageSize . ';margin:0;} @media print{.resep-paper{width:' . $paperWidth . ' !important;}}</style>' !!}
 </head>
 <body>
 
