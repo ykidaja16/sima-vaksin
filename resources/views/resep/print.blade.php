@@ -131,12 +131,16 @@
         border-top: 1pt dashed #bbb; padding-top: 5pt;
     }
 
-    /* ══ PRINT STYLES ══ */
+    /* ══ PRINT STYLES ══
+       @page di luar @media print agar browser mengikuti
+       ukuran kertas yang dipilih user di print dialog.
+       size: auto = serahkan ke pilihan print dialog ══ */
+    @page {
+        size: auto;
+        margin: 12mm 13mm;
+    }
+
     @media print {
-        @page {
-            /* Margin otomatis menyesuaikan semua ukuran kertas (A5/A4/Letter/Legal) */
-            margin: 12mm 13mm;
-        }
         body { background: #fff; }
         .page-wrapper {
             display: block;
@@ -147,28 +151,23 @@
         .toolbar { display: none !important; }
         .resep-paper {
             width: 100%;
+            max-width: 100%;
             box-shadow: none;
             padding: 0;
+            overflow: hidden;
         }
-        /* Cegah overflow kanan: paksa semua teks nowrap bisa wrap saat print */
-        .td-jadwal-right {
-            white-space: normal !important;
-            word-break: break-word;
-        }
-        .jadwal-inner td {
-            white-space: normal !important;
-            word-break: break-word;
-        }
+        /* Paksa semua teks nowrap bisa wrap saat print
+           agar konten tidak overflow ke kanan (penting untuk side-feed printer) */
+        .clinic-name,
+        .td-jadwal-right,
+        .jadwal-inner td,
         .td-addr {
-            word-break: break-word;
             white-space: normal !important;
+            word-break: break-word;
         }
-        /* Pastikan tabel tidak overflow */
+        /* Paksa semua tabel tidak overflow lebar kertas */
         table {
-            table-layout: fixed;
-        }
-        .kop-table, .jadwal-table, .footer-table {
-            table-layout: auto;
+            max-width: 100%;
         }
     }
 </style>
@@ -180,14 +179,8 @@
     {{-- Toolbar (hanya tampil di layar) --}}
     <div class="toolbar">
         <span>&#128196; Resep {{ $resep->no_resep }} &mdash; {{ $resep->nama_pasien }}</span>
-        <select id="paperSizeSelect" class="paper-select" title="Ukuran Kertas">
-            <option value="A5 portrait">&#128203; A5</option>
-            <option value="A4 portrait">&#128203; A4</option>
-            <option value="letter portrait">&#128203; Letter</option>
-            <option value="legal portrait">&#128203; Legal</option>
-        </select>
         <a href="{{ route('resep.show', $resep->id) }}" class="btn-back">&#8592; Kembali</a>
-        <button class="btn-print" onclick="cetakResep()">&#128438; Cetak / Simpan PDF</button>
+        <button class="btn-print" onclick="window.print()">&#128438; Cetak / Simpan PDF</button>
     </div>
 
     {{-- Kertas Resep --}}
@@ -316,24 +309,11 @@
 
 <input type="hidden" id="autoPrintFlag" value="{{ session('auto_print') ? '1' : '0' }}">
 
-{{-- Style dinamis untuk @page size (diisi oleh JS sebelum print) --}}
-<style id="dynamicPageStyle"></style>
-
 <script>
-    // Inject @page size sesuai pilihan dropdown, lalu print
-    function cetakResep() {
-        var size = document.getElementById('paperSizeSelect')
-                    ? document.getElementById('paperSizeSelect').value
-                    : 'A5 portrait';
-        document.getElementById('dynamicPageStyle').textContent =
-            '@media print { @page { size: ' + size + '; margin: 12mm 13mm; } }';
-        setTimeout(function() { window.print(); }, 80);
-    }
-
     // Auto print saat halaman dimuat (dari redirect store dengan auto_print)
     if (document.getElementById('autoPrintFlag').value === '1') {
         window.addEventListener('load', function() {
-            setTimeout(function() { cetakResep(); }, 400);
+            setTimeout(function() { window.print(); }, 400);
         });
     }
 </script>
