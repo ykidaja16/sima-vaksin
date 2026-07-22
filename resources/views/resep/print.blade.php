@@ -147,27 +147,23 @@
         border-top: 1pt dashed #bbb; padding-top: 5pt;
     }
 
-    /* ══ PRINT STYLES ══
-       @page size di-set via PHP (dari URL param ?p=)
-       agar Chrome render TEPAT sesuai ukuran kertas,
-       tidak centering dalam ukuran lain ══ */
-    @page {
-        size: {{ $pageSize }};
-        margin: 12mm 13mm;
-    }
-
+    /* ══ PRINT STYLES ══ */
     @media print {
         body { background: #fff; }
         .page-wrapper {
-            display: block;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
             padding: 0;
             background: #fff;
             min-height: unset;
         }
         .toolbar { display: none !important; }
         .resep-paper {
-            width: 100%;
-            max-width: 100%;
+            width: 148mm;
+            max-width: 148mm;
+            margin: 0 auto;
             box-shadow: none;
             padding: 0;
             overflow: hidden;
@@ -183,6 +179,8 @@
         table { max-width: 100%; }
     }
 </style>
+{{-- @page size: ditulis sebagai string PHP agar IDE tidak parse sebagai CSS --}}
+{!! '<style>@page{size:' . $pageSize . ';margin:12mm 13mm;}</style>' !!}
 </head>
 <body>
 
