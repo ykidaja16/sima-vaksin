@@ -1,3 +1,15 @@
+@php
+    // Ukuran kertas dari URL param ?p= (default: A5)
+    $paperMap = [
+        'A5' => ['css' => 'A5 portrait',      'label' => 'A5'],
+        'A4' => ['css' => 'A4 portrait',      'label' => 'A4'],
+        'L'  => ['css' => 'letter portrait',  'label' => 'Letter'],
+        'LG' => ['css' => 'legal portrait',   'label' => 'Legal'],
+    ];
+    $pKey     = array_key_exists(request('p', 'A5'), $paperMap) ? request('p', 'A5') : 'A5';
+    $pageSize = $paperMap[$pKey]['css'];
+    $baseUrl  = url()->current();
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -37,13 +49,17 @@
         width: 148mm;
     }
     .toolbar span { font-size: 13px; font-weight: 600; flex: 1; }
-    .paper-select {
-        border: none; border-radius: 6px;
-        padding: 5px 8px; font-size: 12px; font-weight: 600;
-        background: #1e3a8a; color: #fff;
-        cursor: pointer;
+    /* Tombol pilihan ukuran kertas di toolbar */
+    .paper-btns { display: flex; gap: 4px; }
+    .btn-sz {
+        display: inline-flex; align-items: center;
+        background: #1e3a8a; color: #93c5fd;
+        border: 1px solid #3b82f6; border-radius: 5px;
+        padding: 4px 10px; font-size: 11px; font-weight: 600;
+        cursor: pointer; text-decoration: none; transition: background .15s;
     }
-    .paper-select option { background: #1e40af; color: #fff; }
+    .btn-sz:hover { background: #1e40af; color: #fff; }
+    .btn-sz.active { background: #fff; color: #1e40af; border-color: #fff; }
     .btn-print {
         display: inline-flex; align-items: center; gap: 6px;
         background: #fff; color: #1e40af;
@@ -132,11 +148,11 @@
     }
 
     /* ══ PRINT STYLES ══
-       @page di luar @media print agar browser mengikuti
-       ukuran kertas yang dipilih user di print dialog.
-       size: auto = serahkan ke pilihan print dialog ══ */
+       @page size di-set via PHP (dari URL param ?p=)
+       agar Chrome render TEPAT sesuai ukuran kertas,
+       tidak centering dalam ukuran lain ══ */
     @page {
-        size: auto;
+        size: {{ $pageSize }};
         margin: 12mm 13mm;
     }
 
@@ -156,8 +172,7 @@
             padding: 0;
             overflow: hidden;
         }
-        /* Paksa semua teks nowrap bisa wrap saat print
-           agar konten tidak overflow ke kanan (penting untuk side-feed printer) */
+        /* Paksa teks nowrap bisa wrap — cegah overflow kanan */
         .clinic-name,
         .td-jadwal-right,
         .jadwal-inner td,
@@ -165,10 +180,7 @@
             white-space: normal !important;
             word-break: break-word;
         }
-        /* Paksa semua tabel tidak overflow lebar kertas */
-        table {
-            max-width: 100%;
-        }
+        table { max-width: 100%; }
     }
 </style>
 </head>
@@ -179,6 +191,12 @@
     {{-- Toolbar (hanya tampil di layar) --}}
     <div class="toolbar">
         <span>&#128196; Resep {{ $resep->no_resep }} &mdash; {{ $resep->nama_pasien }}</span>
+        <div class="paper-btns">
+            @foreach($paperMap as $key => $info)
+            <a href="{{ $baseUrl }}?p={{ $key }}"
+               class="btn-sz {{ $pKey === $key ? 'active' : '' }}">{{ $info['label'] }}</a>
+            @endforeach
+        </div>
         <a href="{{ route('resep.show', $resep->id) }}" class="btn-back">&#8592; Kembali</a>
         <button class="btn-print" onclick="window.print()">&#128438; Cetak / Simpan PDF</button>
     </div>
