@@ -127,14 +127,13 @@
     /* ══ PRINT STYLES ══ */
     @media print {
         @page {
-            size: A5 portrait;
             margin: 0;
         }
         body { background: #fff; }
         .page-wrapper { padding: 0; background: #fff; }
         .toolbar { display: none !important; }
         .resep-paper {
-            width: 148mm;
+            width: 100%;
             box-shadow: none;
             padding: 12mm 13mm 12mm 13mm;
         }
