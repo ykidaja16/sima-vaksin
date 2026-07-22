@@ -127,15 +127,22 @@
     /* ══ PRINT STYLES ══ */
     @media print {
         @page {
-            margin: 0;
+            /* Margin @page otomatis menyesuaikan semua ukuran kertas (A5/A4/Letter/Legal) */
+            margin: 12mm 13mm;
         }
         body { background: #fff; }
-        .page-wrapper { padding: 0; background: #fff; }
+        .page-wrapper {
+            display: block;
+            padding: 0;
+            background: #fff;
+            min-height: unset;
+        }
         .toolbar { display: none !important; }
         .resep-paper {
             width: 100%;
             box-shadow: none;
-            padding: 12mm 13mm 12mm 13mm;
+            /* Padding 0 — margin halaman ditangani oleh @page margin di atas */
+            padding: 0;
         }
     }
 </style>
@@ -275,13 +282,15 @@
     </div>{{-- end .resep-paper --}}
 </div>{{-- end .page-wrapper --}}
 
+<input type="hidden" id="autoPrintFlag" value="{{ session('auto_print') ? '1' : '0' }}">
+
 <script>
     // Auto print saat halaman dimuat (dari redirect store dengan auto_print)
-    @if(session('auto_print'))
+    if (document.getElementById('autoPrintFlag').value === '1') {
         window.addEventListener('load', function() {
             setTimeout(function() { window.print(); }, 400);
         });
-    @endif
+    }
 </script>
 
 </body>
